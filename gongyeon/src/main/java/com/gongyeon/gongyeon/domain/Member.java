@@ -3,6 +3,7 @@ package com.gongyeon.gongyeon.domain;
 import com.gongyeon.gongyeon.enums.GenderEnum;
 import lombok.Getter;
 
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -20,4 +21,7 @@ public class Member extends BaseEntity {
 
     private GenderEnum gender;
     private int age;
+
+    @Embedded
+    private Address address;
 }

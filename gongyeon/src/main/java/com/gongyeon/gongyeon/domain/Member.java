@@ -21,7 +21,19 @@ public class Member extends BaseEntity {
 
     private GenderEnum gender;
     private int age;
-
     @Embedded
     private Address address;
+
+
+    public static Member createMember(String name, String email, String password, GenderEnum gender, int age, Address address) {
+        Member member = new Member();
+        member.name = name;
+        member.email = email;
+        member.password = password;
+        member.gender = gender;
+        member.age = age;
+        member.address = address;
+
+        return member;
+    }
 }

@@ -1,7 +1,9 @@
 package com.gongyeon.gongyeon.domain;
 
 import com.gongyeon.gongyeon.enums.CategoryEnum;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
@@ -10,10 +12,10 @@ import static javax.persistence.FetchType.LAZY;
 @Entity
 @Table(name = "study_fields")
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StudyField extends BaseEntity {
 
-    @Id
-    @GeneratedValue
+    @Id @GeneratedValue
     private Long id;
 
     @ManyToOne(fetch = LAZY)

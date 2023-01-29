@@ -46,29 +46,4 @@ public class MemberController {
         return memberService.login(memberLoginDto.getEmail(), memberLoginDto.getPassword());
     }
 
-
-    /**
-     * JWT Test
-     */
-    @GetMapping("/user")
-    public String user(){
-        return "user";
-    }
-
-    @GetMapping("/admin")
-    public String admin(){
-        return "admin";
-    }
-
-    @GetMapping("/other")
-    public String other(){
-        return "other";
-    }
-
-    @PostConstruct
-    public void init(){
-        Member member = Member.createMember("lee", "test@naver.com", "1234", GenderEnum.MALE, 10, null);
-        member.changeRole(RoleEnum.USER);
-        memberRepository.save(member);
-    }
 }

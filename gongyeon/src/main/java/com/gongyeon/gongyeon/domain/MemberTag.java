@@ -3,7 +3,6 @@ package com.gongyeon.gongyeon.domain;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.lang.Nullable;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -19,10 +18,10 @@ public class MemberTag extends BaseEntity {
     @Id @GeneratedValue
     private Long id;
 
-    @Nullable
-    private int attendance = 0;
-    @Nullable
-    private int kindness = 0;
-    @Nullable
-    private int studyingHard = 0;
+
+    private Integer attendance = 0;
+
+    private Integer kindness = 0;
+
+    private Integer studyingHard = 0;
 }

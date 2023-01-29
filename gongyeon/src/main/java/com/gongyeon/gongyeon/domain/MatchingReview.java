@@ -3,7 +3,6 @@ package com.gongyeon.gongyeon.domain;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 
@@ -30,11 +29,8 @@ public class MatchingReview extends BaseEntity {
     @JoinColumn(name = "target_member_id")
     private Member targetMember;
 
-    @Nullable
     private Boolean attendance;
-    @Nullable
     private Boolean kindness;
-    @Nullable
     private Boolean studyingHard;
 
 

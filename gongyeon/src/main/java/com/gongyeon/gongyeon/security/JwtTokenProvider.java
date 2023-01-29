@@ -1,5 +1,7 @@
 package com.gongyeon.gongyeon.security;
 
+import com.gongyeon.gongyeon.domain.RefreshToken;
+import com.gongyeon.gongyeon.repository.RefreshTokenRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -24,10 +26,12 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider {
 
     private final Key key;
+    private final RefreshTokenRepository refreshTokenRepository;
 
-    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey){
+    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey, RefreshTokenRepository refreshTokenRepository){
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
     public TokenInfo generateToken(Authentication authentication) {
@@ -51,6 +55,9 @@ public class JwtTokenProvider {
                 .setExpiration(new Date(now + 86400000))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+        // Refresh Token 저장
+        RefreshToken refToken = new RefreshToken(authentication.getName(), refreshToken);
+        refreshTokenRepository.save(refToken);
 
         return TokenInfo.builder()
                 .grantType("Bearer")

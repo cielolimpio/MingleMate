@@ -3,7 +3,10 @@ package com.gongyeon.gongyeon.domain;
 import com.gongyeon.gongyeon.enums.GenderEnum;
 
 import com.gongyeon.gongyeon.enums.RoleEnum;
-import lombok.Builder;
+import com.gongyeon.gongyeon.domain.embeddedTypes.Address;
+import com.gongyeon.gongyeon.domain.embeddedTypes.Days;
+import com.gongyeon.gongyeon.domain.embeddedTypes.Tags;
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,9 +16,9 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-
-import static javax.persistence.FetchType.LAZY;
+import java.util.List;
 
 @Entity
 @Table(name = "members")
@@ -38,19 +41,29 @@ public class Member extends BaseEntity implements UserDetails {
 
     @Embedded
     private Address address;
+    @Embedded
+    private Days possibleDays;
+
+    @OneToMany(mappedBy = "member")
+    private List<StudyField> studyFields = new ArrayList<>();
+
+    @Embedded
+    private Tags tags;
 
     @Enumerated(EnumType.STRING)
     private RoleEnum role;
 
-    @OneToOne(fetch = LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "possible_day_id")
-    private PossibleDay possibleDay;
 
-    @OneToOne(fetch = LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "member_tag_id")
-    private MemberTag memberTag;
-
-    public static Member createMember(String name, String email, String password, GenderEnum gender, int age, Address address) {
+    public static Member createMember(
+            String name,
+            String email,
+            String password,
+            GenderEnum gender,
+            int age,
+            Address address,
+            Days possibleDays,
+            StudyField... studyFields
+    ) {
         Member member = new Member();
         member.name = name;
         member.email = email;
@@ -58,6 +71,9 @@ public class Member extends BaseEntity implements UserDetails {
         member.gender = gender;
         member.age = age;
         member.address = address;
+        member.possibleDays = possibleDays;
+        member.tags = new Tags();
+        member.studyFields.addAll(Arrays.asList(studyFields));
 
         return member;
     }

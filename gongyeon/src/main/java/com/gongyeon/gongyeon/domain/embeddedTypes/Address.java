@@ -1,4 +1,4 @@
-package com.gongyeon.gongyeon.domain;
+package com.gongyeon.gongyeon.domain.embeddedTypes;
 
 import lombok.Getter;
 import lombok.Setter;

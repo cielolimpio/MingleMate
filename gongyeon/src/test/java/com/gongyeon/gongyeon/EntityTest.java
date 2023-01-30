@@ -1,10 +1,11 @@
 package com.gongyeon.gongyeon;
 
-import com.gongyeon.gongyeon.domain.Address;
+import com.gongyeon.gongyeon.domain.embeddedTypes.Address;
 import com.gongyeon.gongyeon.domain.Match;
 import com.gongyeon.gongyeon.domain.MatchingReview;
 import com.gongyeon.gongyeon.domain.Member;
 import com.gongyeon.gongyeon.enums.GenderEnum;
+import com.gongyeon.gongyeon.domain.embeddedTypes.Days;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
@@ -30,7 +31,8 @@ public class EntityTest {
                 "password1",
                 GenderEnum.MALE,
                 25,
-                new Address("city1", "town1", "village1")
+                new Address("city1", "town1", "village1"),
+                new Days(false, false, false, false, false, false, false)
         );
         Member member2 = Member.createMember(
                 "동현",
@@ -38,7 +40,8 @@ public class EntityTest {
                 "password2",
                 GenderEnum.MALE,
                 25,
-                new Address("city2", "town2", "village2")
+                new Address("city2", "town2", "village2"),
+                new Days(false, false, false, false, false, false, false)
         );
 
         Match match = Match.createMatch(member1, member2);

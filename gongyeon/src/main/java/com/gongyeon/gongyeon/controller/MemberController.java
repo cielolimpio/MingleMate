@@ -1,19 +1,12 @@
 package com.gongyeon.gongyeon.controller;
 
 import com.gongyeon.gongyeon.controller.dto.MemberLoginDto;
-import com.gongyeon.gongyeon.domain.Member;
-import com.gongyeon.gongyeon.enums.GenderEnum;
-import com.gongyeon.gongyeon.enums.RoleEnum;
-import com.gongyeon.gongyeon.payload.request.SignUpRequest;
 import com.gongyeon.gongyeon.repository.MemberRepository;
 import com.gongyeon.gongyeon.security.TokenInfo;
 import com.gongyeon.gongyeon.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.PostConstruct;
 
 @Slf4j
 @RestController
@@ -45,5 +38,4 @@ public class MemberController {
         log.info("login request");
         return memberService.login(memberLoginDto.getEmail(), memberLoginDto.getPassword());
     }
-
 }

@@ -1,8 +1,7 @@
 package com.gongyeon.gongyeon.service;
 
 import com.gongyeon.gongyeon.domain.Member;
-import com.gongyeon.gongyeon.enums.HttpStatusEnum;
-import com.gongyeon.gongyeon.exception.GongYeonException;
+import com.gongyeon.gongyeon.payload.request.SearchProfilesRequest;
 import com.gongyeon.gongyeon.repository.MemberRepository;
 import com.gongyeon.gongyeon.security.JwtTokenProvider;
 import com.gongyeon.gongyeon.security.TokenInfo;
@@ -40,4 +39,8 @@ public class MemberService {
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         return jwtTokenProvider.generateToken(authentication);
     }
+
+//    public List<Member> searchProfiles(SearchProfilesRequest request) {
+//        memberRepository.findMemberModel()
+//    }
 }

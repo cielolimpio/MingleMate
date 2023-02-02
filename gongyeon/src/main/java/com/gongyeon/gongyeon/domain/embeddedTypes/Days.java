@@ -16,7 +16,7 @@ public class Days {
     private boolean sat = false;
     private boolean sun = false;
 
-    protected Days() {}
+    public Days() {}
 
     public Days(boolean mon, boolean tue, boolean wed, boolean thu, boolean fri, boolean sat, boolean sun) {
         this.mon = mon;

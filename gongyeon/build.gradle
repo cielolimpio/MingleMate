@@ -39,6 +39,8 @@ dependencies {
 
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis:2.3.1.RELEASE' // redis
 
+	implementation 'com.google.code.findbugs:jsr305:3.0.2' // Nullable 사용가능
+
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'com.mysql:mysql-connector-j'

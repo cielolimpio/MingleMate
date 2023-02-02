@@ -2,13 +2,11 @@ package com.gongyeon.gongyeon.controller;
 
 import com.gongyeon.gongyeon.payload.request.MemberLoginRequest;
 import com.gongyeon.gongyeon.domain.Member;
-import com.gongyeon.gongyeon.enums.RoleEnum;
 import com.gongyeon.gongyeon.payload.request.SignUpRequest;
 import com.gongyeon.gongyeon.models.TokenInfo;
 import com.gongyeon.gongyeon.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -19,7 +17,7 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("/sign-up")
-    public ResponseEntity<Long> signUp(
+    public SignUpRequest signUp(
             @RequestBody SignUpRequest request
     ) {
         Member member = Member.createMember(
@@ -27,10 +25,8 @@ public class MemberController {
                 request.getEmail(),
                 request.getPassword()
         );
-        member.changeRole(RoleEnum.USER);
-        Long id = memberService.signUp(member);
-
-        return ResponseEntity.ok(id);
+        memberService.signUp(member);
+        return request;
     }
 
     @PostMapping("/login")
@@ -40,16 +36,17 @@ public class MemberController {
     }
 
     @PostMapping("/reissue")
-    public ResponseEntity<?> reissue(@RequestBody TokenInfo tokenInfo){
+    public TokenInfo reissue(@RequestBody TokenInfo tokenInfo){
         log.info("Reissue Request");
         return memberService.reissue(tokenInfo);
     }
     
     
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestHeader(value = "Authorization") String accessTokenWithType){
+    public void logout(@RequestHeader(value = "Authorization") String accessTokenWithType){
         log.info("Logout Request");
         String accessToken = accessTokenWithType.substring(7);
-        return memberService.logout(accessToken);
+        memberService.logout(accessToken);
     }
+
 }

@@ -1,5 +1,7 @@
-package com.gongyeon.gongyeon.security;
+package com.gongyeon.gongyeon.security.config;
 
+import com.gongyeon.gongyeon.security.filter.JwtAuthenticationFilter;
+import com.gongyeon.gongyeon.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,7 +29,7 @@ public class SecurityConfig {
                 .and()
 
                 .authorizeRequests()
-                .antMatchers("/member/login", "/member/reissue").permitAll()
+                .antMatchers("/member/login", "/member/reissue", "/member/sign-up").permitAll()
                 .antMatchers("/member/user").hasRole("USER")
                 .antMatchers("/member/admin").hasRole("ADMIN")
                 .anyRequest().authenticated()

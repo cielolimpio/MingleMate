@@ -1,4 +1,4 @@
-package com.gongyeon.gongyeon.security;
+package com.gongyeon.gongyeon.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

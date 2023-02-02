@@ -3,8 +3,6 @@ package com.gongyeon.gongyeon.security;
 import com.gongyeon.gongyeon.domain.Member;
 import com.gongyeon.gongyeon.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,15 +17,17 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetailsImpl loadUserByUsername(String username) throws UsernameNotFoundException {
         return memberRepository.findByEmail(username)
                 .map(this::createUserDetails)
                 .orElseThrow(() -> new UsernameNotFoundException("Can't find User"));
     }
 
     // 해당하는 User 의 데이터가 존재한다면 UserDetails 객체로 만들어서 리턴
-    private UserDetails createUserDetails(Member member) {
-        return User.builder()
+    private UserDetailsImpl createUserDetails(Member member) {
+        return (UserDetailsImpl) UserDetailsImpl.builder()
+                .memberId(member.getId())
+                .name(member.getName())
                 .username(member.getEmail())
                 .password(passwordEncoder.encode(member.getPassword()))
                 .roles(member.getRole().toString())

@@ -72,6 +72,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
     }
     private BooleanExpression neqAnyDays(Days days) {
         if (days != null) {
+
             List<BooleanExpression> boolExpressionList = new ArrayList<>();
             if (days.isMon()) boolExpressionList.add(member.possibleDays.mon.isFalse());
             if (days.isTue()) boolExpressionList.add(member.possibleDays.tue.isFalse());

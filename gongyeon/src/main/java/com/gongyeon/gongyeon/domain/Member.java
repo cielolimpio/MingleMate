@@ -64,6 +64,7 @@ public class Member extends BaseEntity implements UserDetails {
         member.email = email;
         member.password = password;
         member.role = RoleEnum.USER;
+        member.possibleDays = new Days();
         return member;
     }
 

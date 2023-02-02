@@ -6,6 +6,7 @@ import com.gongyeon.gongyeon.repository.RefreshTokenRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,11 +29,24 @@ public class JwtTokenProvider {
 
     private final Key key;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final CustomUserDetailsService customUserDetailsService;
 
-    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey, RefreshTokenRepository refreshTokenRepository){
+    private final int MINUTE = 60 * 1000;
+    private final int HOUR = 60 * MINUTE;
+    private final int DAY = 24 * HOUR;
+    private final int ACCESS_TOKEN_EXP_TIME = DAY;
+    private final int REFRESH_TOKEN_EXP_TIME = 30 * DAY;
+    private final SignatureAlgorithm SIGNATURE_ALG = SignatureAlgorithm.HS256;
+
+    public JwtTokenProvider(
+            @Value("${jwt.secret}") String secretKey,
+            RefreshTokenRepository refreshTokenRepository,
+            CustomUserDetailsService customUserDetailsService
+    ){
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.refreshTokenRepository = refreshTokenRepository;
+        this.customUserDetailsService = customUserDetailsService;
     }
 
     public TokenInfo generateToken(Authentication authentication) {
@@ -43,18 +57,18 @@ public class JwtTokenProvider {
 
         long now = (new Date()).getTime();
         // Access Token 생성
-        Date accessTokenExpiresIn = new Date(now + 60000);
+        Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXP_TIME);
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("auth", authorities)
                 .setExpiration(accessTokenExpiresIn)
-                .signWith(key, SignatureAlgorithm.HS256)
+                .signWith(key, SIGNATURE_ALG)
                 .compact();
 
         // Refresh Token 생성
         String refreshToken = Jwts.builder()
-                .setExpiration(new Date(now + 86400000))
-                .signWith(key, SignatureAlgorithm.HS256)
+                .setExpiration(new Date(now + REFRESH_TOKEN_EXP_TIME))
+                .signWith(key, SIGNATURE_ALG)
                 .compact();
         // Refresh Token 저장
         RefreshToken refToken = new RefreshToken(authentication.getName(), refreshToken);
@@ -83,7 +97,7 @@ public class JwtTokenProvider {
                         .collect(Collectors.toList());
 
         // UserDetails 객체를 만들어서 Authentication 리턴
-        UserDetails principal = new User(claims.getSubject(), "", authorities);
+        UserDetailsImpl principal = customUserDetailsService.loadUserByUsername(claims.getSubject());
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
 

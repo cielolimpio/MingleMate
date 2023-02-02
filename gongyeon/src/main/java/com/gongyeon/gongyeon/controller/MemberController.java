@@ -4,11 +4,11 @@ import com.gongyeon.gongyeon.payload.request.MemberLoginRequest;
 import com.gongyeon.gongyeon.domain.Member;
 import com.gongyeon.gongyeon.enums.RoleEnum;
 import com.gongyeon.gongyeon.payload.request.SignUpRequest;
-import com.gongyeon.gongyeon.repository.MemberRepository;
 import com.gongyeon.gongyeon.models.TokenInfo;
 import com.gongyeon.gongyeon.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -25,10 +25,7 @@ public class MemberController {
         Member member = Member.createMember(
                 request.getName(),
                 request.getEmail(),
-                request.getPassword(),
-                request.getGender(),
-                request.getAge(),
-                request.getAddress()
+                request.getPassword()
         );
         member.changeRole(RoleEnum.USER);
         Long id = memberService.signUp(member);

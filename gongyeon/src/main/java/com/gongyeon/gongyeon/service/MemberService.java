@@ -1,10 +1,7 @@
 package com.gongyeon.gongyeon.service;
 
 import com.gongyeon.gongyeon.domain.Member;
-import com.gongyeon.gongyeon.payload.request.SearchProfilesRequest;
 import com.gongyeon.gongyeon.domain.RefreshToken;
-import com.gongyeon.gongyeon.enums.HttpStatusEnum;
-import com.gongyeon.gongyeon.exception.GongYeonException;
 import com.gongyeon.gongyeon.repository.MemberRepository;
 import com.gongyeon.gongyeon.repository.RefreshTokenRepository;
 import com.gongyeon.gongyeon.security.JwtTokenProvider;
@@ -16,9 +13,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

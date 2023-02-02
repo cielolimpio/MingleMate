@@ -28,20 +28,12 @@ public class EntityTest {
         Member member1 = Member.createMember(
                 "유민",
                 "test1@gmail.com",
-                "password1",
-                GenderEnum.MALE,
-                25,
-                new Address("city1", "town1", "village1"),
-                new Days(false, false, false, false, false, false, false)
+                "password1"
         );
         Member member2 = Member.createMember(
                 "동현",
                 "test2@gmail.com",
-                "password2",
-                GenderEnum.MALE,
-                25,
-                new Address("city2", "town2", "village2"),
-                new Days(false, false, false, false, false, false, false)
+                "password2"
         );
 
         Match match = Match.createMatch(member1, member2);

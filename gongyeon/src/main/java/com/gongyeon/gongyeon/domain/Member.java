@@ -57,25 +57,29 @@ public class Member extends BaseEntity implements UserDetails {
     public static Member createMember(
             String name,
             String email,
-            String password,
+            String password
+    ) {
+        Member member = new Member();
+        member.name = name;
+        member.email = email;
+        member.password = password;
+        member.role = RoleEnum.USER;
+        return member;
+    }
+
+    public void updateMember(
             GenderEnum gender,
             int age,
             Address address,
             Days possibleDays,
             StudyField... studyFields
     ) {
-        Member member = new Member();
-        member.name = name;
-        member.email = email;
-        member.password = password;
-        member.gender = gender;
-        member.age = age;
-        member.address = address;
-        member.possibleDays = possibleDays;
-        member.tags = new Tags();
-        member.studyFields.addAll(Arrays.asList(studyFields));
-
-        return member;
+        this.gender = gender;
+        this.age = age;
+        this.address = address;
+        this.possibleDays = possibleDays;
+        this.tags = new Tags();
+        this.studyFields.addAll(Arrays.asList(studyFields));
     }
 
     public void changeRole(RoleEnum role){

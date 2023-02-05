@@ -25,14 +25,17 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member extends BaseEntity implements UserDetails {
 
-    @Id @GeneratedValue
-    @Column(name = "member_id")
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false , length = 20)
     private String name;
+    @Column(nullable = false, length = 50)
     private String email;
+    @Column(nullable = false, length = 200)
     private String password;
 
+    @Column(length = 10)
     @Enumerated(EnumType.STRING)
     private GenderEnum gender;
 
@@ -49,6 +52,7 @@ public class Member extends BaseEntity implements UserDetails {
     @Embedded
     private Tags tags;
 
+    @Column(nullable = false, length = 10)
     @Enumerated(EnumType.STRING)
     private RoleEnum role;
 
@@ -64,6 +68,7 @@ public class Member extends BaseEntity implements UserDetails {
         member.password = password;
         member.role = RoleEnum.USER;
         member.possibleDaysOfTheWeek = new DaysOfTheWeek();
+        member.tags = new Tags();
         return member;
     }
 

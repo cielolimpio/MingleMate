@@ -14,19 +14,19 @@ import static javax.persistence.FetchType.LAZY;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MatchingReview extends BaseEntity {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "match_id")
+    @JoinColumn(name = "match_id", nullable = false)
     private Match match;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "reviewer_id")
+    @JoinColumn(name = "reviewer_id", nullable = false)
     private Member reviewer;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "target_member_id")
+    @JoinColumn(name = "target_member_id", nullable = false)
     private Member targetMember;
 
     private Boolean attendance;

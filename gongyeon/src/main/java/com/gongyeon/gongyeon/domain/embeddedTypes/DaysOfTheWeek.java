@@ -1,32 +1,33 @@
 package com.gongyeon.gongyeon.domain.embeddedTypes;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 @Embeddable
 @Getter @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class DaysOfTheWeek {
+    @Column(nullable = false)
     private boolean mon = false;
+    @Column(nullable = false)
     private boolean tue = false;
+    @Column(nullable = false)
     private boolean wed = false;
+    @Column(nullable = false)
     private boolean thu = false;
+    @Column(nullable = false)
     private boolean fri = false;
+    @Column(nullable = false)
     private boolean sat = false;
+    @Column(nullable = false)
     private boolean sun = false;
 
-    public DaysOfTheWeek() {}
-
-    public DaysOfTheWeek(boolean mon, boolean tue, boolean wed, boolean thu, boolean fri, boolean sat, boolean sun) {
-        this.mon = mon;
-        this.tue = tue;
-        this.wed = wed;
-        this.thu = thu;
-        this.fri = fri;
-        this.sat = sat;
-        this.sun = sun;
-    }
 
     public int countMatchingDaysOfTheWeek(DaysOfTheWeek daysOfTheWeek) {
         int count = 0;

@@ -15,17 +15,18 @@ import static javax.persistence.FetchType.LAZY;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Match extends BaseEntity {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "requester_id")
+    @JoinColumn(name = "requester_id", nullable = false)
     private Member requester;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "responder_id")
+    @JoinColumn(name = "responder_id", nullable = false)
     private Member responder;
 
+    @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
     private MatchingStatusEnum matchingStatus;
 

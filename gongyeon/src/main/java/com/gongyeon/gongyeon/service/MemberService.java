@@ -20,6 +20,7 @@ import org.springframework.data.util.Pair;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,18 +42,36 @@ public class MemberService {
     private final RefreshTokenRepository refreshTokenRepository;
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final PasswordEncoder passwordEncoder;
 
     private final BigDecimal STUDY_FIELD_SCORE_WEIGHT = BigDecimal.valueOf(60);
     private final BigDecimal DAYS_OF_THE_WEEK_SCORE_WEIGHT = BigDecimal.valueOf(40);
 
-    public Long signUp(Member member) {
-        Member newMember = memberRepository.save(member);
-        System.out.println("newMember = " + newMember);
-        return newMember.getId();
+    @Transactional(readOnly = false)
+    public TokenInfo signUp(Member member) {
+        if (memberRepository.findByEmail(member.getEmail()).isPresent()) {
+            throw new GongYeonException(HttpStatusEnum.CONFLICT, "This Email Already Exists");
+        }
+
+        Member memberAfterEncodingPW = getMemberAfterEncodingPW(member);
+        memberRepository.save(memberAfterEncodingPW);
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(member.getEmail(), member.getPassword());
+        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        return jwtTokenProvider.generateToken(authentication);
+    }
+
+    private Member getMemberAfterEncodingPW(Member member) {
+        return Member.createMember(
+                member.getName(),
+                member.getEmail(),
+                passwordEncoder.encode(member.getPassword())
+        );
     }
 
     public TokenInfo login(String email, String password){
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(email, password);
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         return jwtTokenProvider.generateToken(authentication);
     }
@@ -62,11 +81,12 @@ public class MemberService {
 
         // redis에서 refresh Token 가져오기
         RefreshToken refreshTokenFromRedis = refreshTokenRepository.findById(authentication.getName())
-                .orElseThrow(() -> new RuntimeException("Refresh Token이 존재하지 않습니다."));
+                .orElseThrow(() -> new GongYeonException(HttpStatusEnum.NOT_FOUND, "Refresh Token이 존재하지 않습니다.")); // 만료됨 or 로그아웃됨
         if(!token.getRefreshToken().equals(refreshTokenFromRedis.getRefreshToken())){
-            throw new GongYeonException(HttpStatusEnum.BAD_REQUEST, "토큰의 유저 정보가 일치하지 않습니다.");
+            throw new GongYeonException(HttpStatusEnum.BAD_REQUEST, "토큰의 유저 정보가 일치하지 않습니다."); // FORBIDDEN
         }
 
+        //refresh token 만료되었는지 확인 -> UNAUTHORIZED
         TokenInfo reissuedTokenDto = jwtTokenProvider.generateToken(authentication);
         RefreshToken reissuedRefreshToken = new RefreshToken(authentication.getName(), reissuedTokenDto.getRefreshToken());
         refreshTokenRepository.save(reissuedRefreshToken);
@@ -74,17 +94,11 @@ public class MemberService {
         return reissuedTokenDto;
     }
 
-    public String logout(String accessToken){
-        // Access Token 검증
-        if (!jwtTokenProvider.validateToken(accessToken)) {
-            throw new GongYeonException(HttpStatusEnum.BAD_REQUEST, "토큰의 유저 정보가 일치하지 않습니다.");
-        }
-
-        // AccessToken을 통해 해당 유저 Authentication 가져오기
-        Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
+    public String logout(){
+        String email = AuthenticationProvider.getCurrentMember().getEmail();
 
         // redis에서 해당 유저의 refreshToken 값 찾아와 지우기
-        RefreshToken refreshToken = refreshTokenRepository.findById(authentication.getName())
+        RefreshToken refreshToken = refreshTokenRepository.findById(email)
                 .orElseThrow(() -> new GongYeonException(HttpStatusEnum.BAD_REQUEST, "Refresh Token이 존재하지 않습니다."));
         if(!refreshToken.getRefreshToken().isEmpty()){
             refreshTokenRepository.delete(refreshToken);

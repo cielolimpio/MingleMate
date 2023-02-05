@@ -25,22 +25,19 @@ public class MemberControllerTest {
     @PersistenceContext
     EntityManager em;
 
-//    @Test
-//    public void signUp() throws Exception {
-//        //given
-//        SignUpRequest signUpRequest = new SignUpRequest(
-//                "test",
-//                "test@gmail.com",
-//                "password",
-//                GenderEnum.MALE,
-//                25,
-//                new Address("city", "town", "village")
-//        );
-//
-//        //when
+    @Test
+    public void signUp() throws Exception {
+        //given
+        SignUpRequest signUpRequest = new SignUpRequest(
+                "test",
+                "test@gmail.com",
+                "password"
+        );
+
+        //when
 //        ResponseEntity<Long> response = memberController.signUp(signUpRequest);
-//
-//        //then
+
+        //then
 //        Assertions.assertThat(response.getBody()).isEqualTo(1);
-//    }
+    }
 }

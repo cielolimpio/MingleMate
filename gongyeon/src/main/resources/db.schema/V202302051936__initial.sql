@@ -1,9 +1,3 @@
-# CREATE TABLE hibernate_sequence (
-#     next_val BIGINT
-# ) ENGINE=InnoDB;
-#
-# insert into hibernate_sequence values ( 1 );
-
 CREATE TABLE IF NOT EXISTS members (
     id BIGINT NOT NULL AUTO_INCREMENT,
     name VARCHAR(20) NOT NULL,

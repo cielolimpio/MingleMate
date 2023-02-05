@@ -1,4 +1,4 @@
-package com.gongyeon.gongyeon.security.config;
+package com.gongyeon.gongyeon.config;
 
 import com.gongyeon.gongyeon.interceptor.ResponseInterceptor;
 import lombok.RequiredArgsConstructor;

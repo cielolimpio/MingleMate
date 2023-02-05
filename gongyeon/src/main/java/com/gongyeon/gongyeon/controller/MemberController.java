@@ -21,7 +21,7 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("/sign-up")
-    public SignUpRequest signUp(
+    public TokenInfo signUp(
             @RequestBody SignUpRequest request
     ) {
         Member member = Member.createMember(
@@ -29,8 +29,7 @@ public class MemberController {
                 request.getEmail(),
                 request.getPassword()
         );
-        memberService.signUp(member);
-        return request;
+        return memberService.signUp(member);
     }
 
     @PostMapping("/login")
@@ -47,14 +46,13 @@ public class MemberController {
     
     
     @PostMapping("/logout")
-    public void logout(@RequestHeader(value = "Authorization") String accessTokenWithType){
+    public void logout(){
         log.info("Logout Request");
-        String accessToken = accessTokenWithType.substring(7);
-        memberService.logout(accessToken);
+        memberService.logout();
     }
 
-    @GetMapping("/search-profiles")
-    public Page<MemberProfile> searchProfiles(SearchProfilesRequest request, Pageable pageable) {
+    @PostMapping("/search-profiles")
+    public Page<MemberProfile> searchProfiles(@RequestBody SearchProfilesRequest request, Pageable pageable) {
         return memberService.searchProfiles(request, pageable);
     }
 }

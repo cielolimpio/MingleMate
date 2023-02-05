@@ -1,12 +1,16 @@
 package com.gongyeon.gongyeon.controller;
 
+import com.gongyeon.gongyeon.models.MemberProfile;
 import com.gongyeon.gongyeon.payload.request.MemberLoginRequest;
 import com.gongyeon.gongyeon.domain.Member;
+import com.gongyeon.gongyeon.payload.request.SearchProfilesRequest;
 import com.gongyeon.gongyeon.payload.request.SignUpRequest;
 import com.gongyeon.gongyeon.models.TokenInfo;
 import com.gongyeon.gongyeon.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -49,4 +53,8 @@ public class MemberController {
         memberService.logout(accessToken);
     }
 
+    @GetMapping("/search-profiles")
+    public Page<MemberProfile> searchProfiles(SearchProfilesRequest request, Pageable pageable) {
+        return memberService.searchProfiles(request, pageable);
+    }
 }

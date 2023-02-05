@@ -2,7 +2,7 @@ package com.gongyeon.gongyeon.models;
 
 import com.gongyeon.gongyeon.domain.StudyField;
 import com.gongyeon.gongyeon.domain.embeddedTypes.Address;
-import com.gongyeon.gongyeon.domain.embeddedTypes.Days;
+import com.gongyeon.gongyeon.domain.embeddedTypes.DaysOfTheWeek;
 import com.gongyeon.gongyeon.domain.embeddedTypes.Tags;
 import com.gongyeon.gongyeon.enums.GenderEnum;
 import com.querydsl.core.annotations.QueryProjection;
@@ -19,7 +19,7 @@ public class MemberProfile {
     private GenderEnum gender;
     private int age;
     private Address address;
-    private Days possibleDays;
+    private DaysOfTheWeek possibleDaysOfTheWeek;
     private List<StudyField> studyFields;
     private Tags tags;
 
@@ -30,7 +30,7 @@ public class MemberProfile {
             GenderEnum gender,
             int age,
             Address address,
-            Days possibleDays,
+            DaysOfTheWeek possibleDaysOfTheWeek,
             List<StudyField> studyFields,
             Tags tags
     ) {
@@ -39,7 +39,7 @@ public class MemberProfile {
         this.gender = gender;
         this.age = age;
         this.address = address;
-        this.possibleDays = possibleDays;
+        this.possibleDaysOfTheWeek = possibleDaysOfTheWeek;
         this.studyFields = studyFields;
         this.tags = tags;
     }

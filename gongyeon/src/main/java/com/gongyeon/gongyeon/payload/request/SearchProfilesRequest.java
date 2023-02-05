@@ -1,7 +1,7 @@
 package com.gongyeon.gongyeon.payload.request;
 
 import com.gongyeon.gongyeon.domain.embeddedTypes.Address;
-import com.gongyeon.gongyeon.domain.embeddedTypes.Days;
+import com.gongyeon.gongyeon.domain.embeddedTypes.DaysOfTheWeek;
 import com.gongyeon.gongyeon.enums.GenderEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,6 +15,6 @@ public class SearchProfilesRequest {
     private GenderEnum gender;
     private Pair<Integer, Integer> ageRange;
     private Address address;
-    private Days days;
+    private DaysOfTheWeek daysOfTheWeek;
     private List<String> studyFields;
 }

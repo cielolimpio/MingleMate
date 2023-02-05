@@ -2,6 +2,7 @@ package com.gongyeon.gongyeon.security;
 
 import com.gongyeon.gongyeon.domain.RefreshToken;
 import com.gongyeon.gongyeon.models.TokenInfo;
+import com.gongyeon.gongyeon.repository.MemberRepository;
 import com.gongyeon.gongyeon.repository.RefreshTokenRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -15,6 +16,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -29,7 +31,7 @@ public class JwtTokenProvider {
 
     private final Key key;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final CustomUserDetailsService customUserDetailsService;
+    private final MemberRepository memberRepository;
 
     private final int MINUTE = 60 * 1000;
     private final int HOUR = 60 * MINUTE;
@@ -41,12 +43,12 @@ public class JwtTokenProvider {
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secretKey,
             RefreshTokenRepository refreshTokenRepository,
-            CustomUserDetailsService customUserDetailsService
+            MemberRepository memberRepository
     ){
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.refreshTokenRepository = refreshTokenRepository;
-        this.customUserDetailsService = customUserDetailsService;
+        this.memberRepository = memberRepository;
     }
 
     public TokenInfo generateToken(Authentication authentication) {
@@ -97,7 +99,9 @@ public class JwtTokenProvider {
                         .collect(Collectors.toList());
 
         // UserDetails 객체를 만들어서 Authentication 리턴
-        UserDetailsImpl principal = customUserDetailsService.loadUserByUsername(claims.getSubject());
+        UserDetailsImpl principal = memberRepository.findByEmail(claims.getSubject())
+                .map(UserDetailsImpl::new)
+                .orElseThrow(() -> new UsernameNotFoundException("Can't find User"));
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
 

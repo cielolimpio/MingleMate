@@ -1,7 +1,7 @@
 package com.gongyeon.gongyeon.repository;
 
 import com.gongyeon.gongyeon.domain.embeddedTypes.Address;
-import com.gongyeon.gongyeon.domain.embeddedTypes.Days;
+import com.gongyeon.gongyeon.domain.embeddedTypes.DaysOfTheWeek;
 import com.gongyeon.gongyeon.enums.GenderEnum;
 import com.gongyeon.gongyeon.models.MemberProfile;
 import com.gongyeon.gongyeon.models.QMemberProfile;
@@ -33,7 +33,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                         member.gender,
                         member.age,
                         member.address,
-                        member.possibleDays,
+                        member.possibleDaysOfTheWeek,
                         member.studyFields,
                         member.tags
                 ))
@@ -44,8 +44,11 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                         ageGoe(request.getAgeRange().getFirst()),
                         ageLoe(request.getAgeRange().getSecond()),
                         eqAddress(request.getAddress()),
-                        neqAnyDays(request.getDays())
+                        neqAnyDaysOfTheWeek(request.getDaysOfTheWeek())
                 )
+                .offset(0)
+                .limit(300)
+                .orderBy(member.lastModifiedDateTime.desc())
                 .fetch();
     }
 
@@ -70,17 +73,17 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
         }
         return null;
     }
-    private BooleanExpression neqAnyDays(Days days) {
-        if (days != null) {
+    private BooleanExpression neqAnyDaysOfTheWeek(DaysOfTheWeek daysOfTheWeek) {
+        if (daysOfTheWeek != null) {
 
             List<BooleanExpression> boolExpressionList = new ArrayList<>();
-            if (days.isMon()) boolExpressionList.add(member.possibleDays.mon.isFalse());
-            if (days.isTue()) boolExpressionList.add(member.possibleDays.tue.isFalse());
-            if (days.isWed()) boolExpressionList.add(member.possibleDays.wed.isFalse());
-            if (days.isThu()) boolExpressionList.add(member.possibleDays.thu.isFalse());
-            if (days.isFri()) boolExpressionList.add(member.possibleDays.fri.isFalse());
-            if (days.isSat()) boolExpressionList.add(member.possibleDays.sat.isFalse());
-            if (days.isSun()) boolExpressionList.add(member.possibleDays.sun.isFalse());
+            if (daysOfTheWeek.isMon()) boolExpressionList.add(member.possibleDaysOfTheWeek.mon.isFalse());
+            if (daysOfTheWeek.isTue()) boolExpressionList.add(member.possibleDaysOfTheWeek.tue.isFalse());
+            if (daysOfTheWeek.isWed()) boolExpressionList.add(member.possibleDaysOfTheWeek.wed.isFalse());
+            if (daysOfTheWeek.isThu()) boolExpressionList.add(member.possibleDaysOfTheWeek.thu.isFalse());
+            if (daysOfTheWeek.isFri()) boolExpressionList.add(member.possibleDaysOfTheWeek.fri.isFalse());
+            if (daysOfTheWeek.isSat()) boolExpressionList.add(member.possibleDaysOfTheWeek.sat.isFalse());
+            if (daysOfTheWeek.isSun()) boolExpressionList.add(member.possibleDaysOfTheWeek.sun.isFalse());
 
             return boolExpressionList.stream()
                     .reduce(BooleanExpression::and)

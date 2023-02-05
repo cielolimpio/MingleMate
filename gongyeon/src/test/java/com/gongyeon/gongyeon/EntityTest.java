@@ -1,11 +1,8 @@
 package com.gongyeon.gongyeon;
 
-import com.gongyeon.gongyeon.domain.embeddedTypes.Address;
 import com.gongyeon.gongyeon.domain.Match;
 import com.gongyeon.gongyeon.domain.MatchingReview;
 import com.gongyeon.gongyeon.domain.Member;
-import com.gongyeon.gongyeon.enums.GenderEnum;
-import com.gongyeon.gongyeon.domain.embeddedTypes.Days;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;

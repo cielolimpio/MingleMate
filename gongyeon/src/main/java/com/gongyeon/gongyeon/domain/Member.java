@@ -1,12 +1,11 @@
 package com.gongyeon.gongyeon.domain;
 
+import com.gongyeon.gongyeon.domain.embeddedTypes.DaysOfTheWeek;
 import com.gongyeon.gongyeon.enums.GenderEnum;
 
 import com.gongyeon.gongyeon.enums.RoleEnum;
 import com.gongyeon.gongyeon.domain.embeddedTypes.Address;
-import com.gongyeon.gongyeon.domain.embeddedTypes.Days;
 import com.gongyeon.gongyeon.domain.embeddedTypes.Tags;
-import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -42,7 +41,7 @@ public class Member extends BaseEntity implements UserDetails {
     @Embedded
     private Address address;
     @Embedded
-    private Days possibleDays;
+    private DaysOfTheWeek possibleDaysOfTheWeek;
 
     @OneToMany(mappedBy = "member")
     private List<StudyField> studyFields = new ArrayList<>();
@@ -64,7 +63,7 @@ public class Member extends BaseEntity implements UserDetails {
         member.email = email;
         member.password = password;
         member.role = RoleEnum.USER;
-        member.possibleDays = new Days();
+        member.possibleDaysOfTheWeek = new DaysOfTheWeek();
         return member;
     }
 
@@ -72,13 +71,13 @@ public class Member extends BaseEntity implements UserDetails {
             GenderEnum gender,
             int age,
             Address address,
-            Days possibleDays,
+            DaysOfTheWeek possibleDaysOfTheWeek,
             StudyField... studyFields
     ) {
         this.gender = gender;
         this.age = age;
         this.address = address;
-        this.possibleDays = possibleDays;
+        this.possibleDaysOfTheWeek = possibleDaysOfTheWeek;
         this.tags = new Tags();
         this.studyFields.addAll(Arrays.asList(studyFields));
     }

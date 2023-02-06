@@ -29,20 +29,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         ContentCachingRequestWrapper requestWrapper = new ContentCachingRequestWrapper(request);
         ContentCachingResponseWrapper responseWrapper = new ContentCachingResponseWrapper(response);
-        try{
-            String token = resolveToken(requestWrapper);
 
-            if(token != null && jwtTokenProvider.validateToken(token)){
-                Authentication authentication = jwtTokenProvider.getAuthentication(token);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            }
+        String token = resolveToken(requestWrapper);
 
-            filterChain.doFilter(requestWrapper, responseWrapper);
-            responseWrapper.copyBodyToResponse();
-        } catch (ExpiredJwtException e){
-            log.error("Expired JWT Token", e);
-            throw new GongYeonException(HttpStatusEnum.BAD_REQUEST, HttpStatusEnum.BAD_REQUEST.getDescription());
+        if(token != null && jwtTokenProvider.validateToken(token)){
+            Authentication authentication = jwtTokenProvider.getAuthentication(token);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
+
+        filterChain.doFilter(requestWrapper, responseWrapper);
+        responseWrapper.copyBodyToResponse();
+
 
     }
 

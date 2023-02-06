@@ -25,7 +25,7 @@ public class ResponseInterceptor implements HandlerInterceptor {
         String contentString = new String(res.getContentAsByteArray());
         Object readValue = objectMapper.readValue(contentString, Object.class);
 
-        ResponseEntity<Object> objectResponseEntity = new ResponseEntity<>(readValue, HttpStatus.OK);
+        ResponseEntity<Object> objectResponseEntity = new ResponseEntity<>(readValue);
         String wrappedBody = objectMapper.writeValueAsString(objectResponseEntity);
         res.resetBuffer();
         res.getOutputStream().write(wrappedBody.getBytes(), 0, wrappedBody.getBytes().length);

@@ -1,12 +1,15 @@
 package com.gongyeon.gongyeon.security;
 
 import com.gongyeon.gongyeon.domain.RefreshToken;
+import com.gongyeon.gongyeon.enums.HttpStatusEnum;
+import com.gongyeon.gongyeon.exception.GongYeonException;
 import com.gongyeon.gongyeon.models.TokenInfo;
 import com.gongyeon.gongyeon.repository.MemberRepository;
 import com.gongyeon.gongyeon.repository.RefreshTokenRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -89,7 +92,7 @@ public class JwtTokenProvider {
         Claims claims = parseClaims(accessToken);
 
         if (claims.get("auth") == null) {
-            throw new RuntimeException("권한 정보가 없는 토큰입니다.");
+            throw new GongYeonException(HttpStatusEnum.UNAUTHORIZED, "권한 정보가 없는 토큰입니다.");
         }
 
         // 클레임에서 권한 정보 가져오기
@@ -112,12 +115,17 @@ public class JwtTokenProvider {
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
             log.info("Invalid JWT Token", e);
+            throw new GongYeonException(HttpStatusEnum.UNAUTHORIZED, "Invalid JWT Token");
         } catch (UnsupportedJwtException e) {
             log.info("Unsupported JWT Token", e);
+            throw new GongYeonException(HttpStatusEnum.UNAUTHORIZED, "Unsupported JWT Token");
         } catch (IllegalArgumentException e) {
             log.info("JWT claims string is empty.", e);
+            throw new GongYeonException(HttpStatusEnum.NOT_FOUND, "JWT claims string is empty.");
+        } catch (ExpiredJwtException e){
+            log.error("Expired JWT Token", e);
+            throw new GongYeonException(HttpStatusEnum.BAD_REQUEST, HttpStatusEnum.BAD_REQUEST.getDescription());
         }
-        return false;
     }
 
     private Claims parseClaims(String accessToken) {

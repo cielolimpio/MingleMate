@@ -10,10 +10,10 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SignUpRequest {
-    @NotBlank
+    @NotBlank(message = "name은 필수값 입니다.")
     private String name;
-    @NotBlank
+    @NotBlank(message = "email은 필수값 입니다.")
     private String email;
-    @NotBlank
+    @NotBlank(message = "password는 필수값 입니다.")
     private String password;
 }

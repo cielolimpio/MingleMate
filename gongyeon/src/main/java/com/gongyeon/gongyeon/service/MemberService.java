@@ -47,7 +47,7 @@ public class MemberService {
     private final BigDecimal STUDY_FIELD_SCORE_WEIGHT = BigDecimal.valueOf(60);
     private final BigDecimal DAYS_OF_THE_WEEK_SCORE_WEIGHT = BigDecimal.valueOf(40);
 
-    @Transactional(readOnly = false)
+    @Transactional
     public TokenInfo signUp(Member member) {
         if (memberRepository.findByEmail(member.getEmail()).isPresent()) {
             throw new GongYeonException(HttpStatusEnum.CONFLICT, "This Email Already Exists");

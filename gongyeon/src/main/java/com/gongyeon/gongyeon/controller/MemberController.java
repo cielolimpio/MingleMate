@@ -13,6 +13,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -22,7 +24,7 @@ public class MemberController {
 
     @PostMapping("/sign-up")
     public TokenInfo signUp(
-            @RequestBody SignUpRequest request
+            @Valid @RequestBody SignUpRequest request
     ) {
         Member member = Member.createMember(
                 request.getName(),
@@ -33,13 +35,13 @@ public class MemberController {
     }
 
     @PostMapping("/login")
-    public TokenInfo login(@RequestBody MemberLoginRequest memberLoginRequest){
+    public TokenInfo login(@Valid @RequestBody MemberLoginRequest memberLoginRequest){
         log.info("Login Request");
         return memberService.login(memberLoginRequest.getEmail(), memberLoginRequest.getPassword());
     }
 
     @PostMapping("/reissue")
-    public TokenInfo reissue(@RequestBody TokenInfo tokenInfo){
+    public TokenInfo reissue(@Valid @RequestBody TokenInfo tokenInfo){
         log.info("Reissue Request");
         return memberService.reissue(tokenInfo);
     }
@@ -52,7 +54,7 @@ public class MemberController {
     }
 
     @PostMapping("/search-profiles")
-    public Page<MemberProfile> searchProfiles(@RequestBody SearchProfilesRequest request, Pageable pageable) {
+    public Page<MemberProfile> searchProfiles(@Valid @RequestBody SearchProfilesRequest request, Pageable pageable) {
         return memberService.searchProfiles(request, pageable);
     }
 }

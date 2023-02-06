@@ -5,15 +5,13 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
 
-@Getter @Setter
-@AllArgsConstructor
+@Getter
 @NoArgsConstructor
 public class ResponseEntity<T> extends HttpEntity<T> {
-    private HttpStatus status;
     private T body;
 
-    public ResponseEntity(@Nullable T body, HttpStatus status){
+    public ResponseEntity(@Nullable T body){
         this.body = body;
-        this.status = status;
     }
+
 }

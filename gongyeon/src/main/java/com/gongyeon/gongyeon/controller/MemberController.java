@@ -1,6 +1,8 @@
 package com.gongyeon.gongyeon.controller;
 
+import com.gongyeon.gongyeon.models.MatchDto;
 import com.gongyeon.gongyeon.models.MemberProfile;
+import com.gongyeon.gongyeon.models.MyPageDto;
 import com.gongyeon.gongyeon.payload.request.MemberLoginRequest;
 import com.gongyeon.gongyeon.domain.Member;
 import com.gongyeon.gongyeon.payload.request.SearchProfilesRequest;
@@ -14,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -57,4 +60,21 @@ public class MemberController {
     public Page<MemberProfile> searchProfiles(@Valid @RequestBody SearchProfilesRequest request, Pageable pageable) {
         return memberService.searchProfiles(request, pageable);
     }
+
+    @PostMapping("/update-profiles")
+    public MemberProfile updateProfiles(@RequestBody MemberProfile updateProfile){
+        return memberService.updateProfiles(updateProfile);
+    }
+
+
+    @GetMapping("/mypage")
+    public MyPageDto myPage(){
+        return memberService.myPage();
+    }
+
+    @GetMapping("/mypage/matching-history")
+    public List<MatchDto> matchingHistory(){
+        return memberService.matchingHistory();
+    }
+
 }

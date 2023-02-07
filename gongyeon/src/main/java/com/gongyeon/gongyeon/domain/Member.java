@@ -73,18 +73,20 @@ public class Member extends BaseEntity implements UserDetails {
     }
 
     public void updateMember(
+            String name,
             GenderEnum gender,
             int age,
             Address address,
             DaysOfTheWeek possibleDaysOfTheWeek,
-            StudyField... studyFields
+            List<StudyField> studyFields
     ) {
+        this.name = name;
         this.gender = gender;
         this.age = age;
         this.address = address;
         this.possibleDaysOfTheWeek = possibleDaysOfTheWeek;
         this.tags = new Tags();
-        this.studyFields.addAll(Arrays.asList(studyFields));
+        this.studyFields.addAll(studyFields);
     }
 
     public void changeRole(RoleEnum role){

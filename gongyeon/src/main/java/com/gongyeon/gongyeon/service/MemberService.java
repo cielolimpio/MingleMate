@@ -1,13 +1,17 @@
 package com.gongyeon.gongyeon.service;
 
+import com.gongyeon.gongyeon.domain.Match;
 import com.gongyeon.gongyeon.domain.Member;
 import com.gongyeon.gongyeon.domain.RefreshToken;
 import com.gongyeon.gongyeon.domain.StudyField;
 import com.gongyeon.gongyeon.enums.HttpStatusEnum;
 import com.gongyeon.gongyeon.exception.GongYeonException;
+import com.gongyeon.gongyeon.models.MatchDto;
 import com.gongyeon.gongyeon.models.MemberProfile;
+import com.gongyeon.gongyeon.models.MyPageDto;
 import com.gongyeon.gongyeon.payload.request.SearchProfilesRequest;
 import com.gongyeon.gongyeon.provider.AuthenticationProvider;
+import com.gongyeon.gongyeon.repository.MatchRepository;
 import com.gongyeon.gongyeon.repository.MemberRepository;
 import com.gongyeon.gongyeon.repository.RefreshTokenRepository;
 import com.gongyeon.gongyeon.security.JwtTokenProvider;
@@ -26,8 +30,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -40,6 +46,8 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final RefreshTokenRepository refreshTokenRepository;
+
+    private final MatchRepository matchRepository;
 
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
@@ -169,5 +177,57 @@ public class MemberService {
         List<MemberProfile> content = sortedMemberProfiles.subList(start, end);
 
         return PageableExecutionUtils.getPage(content, pageable, sortedMemberProfiles::size);
+    }
+
+    public MyPageDto myPage() {
+        Long currentMemberId = AuthenticationProvider.getCurrentMemberId();
+        Member findMember = memberRepository.findById(currentMemberId)
+                .orElseThrow(() -> new GongYeonException(HttpStatusEnum.NOT_FOUND, "Can't Find User"));
+
+        return new MyPageDto(
+                findMember.getName(),
+                findMember.getEmail(),
+                findMember.getGender(),
+                findMember.getAge(),
+                findMember.getAddress(),
+                findMember.getPossibleDaysOfTheWeek(),
+                findMember.getStudyFields(),
+                findMember.getTags());
+    }
+
+    public List<MatchDto> matchingHistory() {
+        Member currentMember = AuthenticationProvider.getCurrentMember();
+        List<Match> result = new ArrayList<>();
+
+        List<Match> matchesByRequester = matchRepository.findByRequester(currentMember);
+        List<Match> matchesByResponder = matchRepository.findByResponder(currentMember);
+        result.addAll(matchesByRequester);
+        result.addAll(matchesByResponder);
+
+        return result.stream()
+                .map(m -> new MatchDto(
+                        m.getRequester().getName(),
+                        m.getResponder().getName(),
+                        m.getMatchingStatus(),
+                        m.getRegisteredDateTime()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public MemberProfile updateProfiles(MemberProfile updateProfile) {
+        Long currentMemberId = AuthenticationProvider.getCurrentMemberId();
+        Member member = memberRepository.findById(currentMemberId)
+                .orElseThrow(() -> new GongYeonException(HttpStatusEnum.NOT_FOUND, "Can't find User"));
+        member.updateMember(
+                updateProfile.getName(),
+                updateProfile.getGender(),
+                updateProfile.getAge(),
+                updateProfile.getAddress(),
+                updateProfile.getPossibleDaysOfTheWeek(),
+                updateProfile.getStudyFields()
+        );
+
+        return updateProfile;
     }
 }

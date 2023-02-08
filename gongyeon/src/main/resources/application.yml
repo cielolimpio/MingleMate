@@ -18,6 +18,13 @@ spring:
       hibernate:
         show_sql: true
         format_sql: true
+
+  flyway:
+    enabled: false
+    baseline-on-migrate: false
+    url: jdbc:mysql://localhost:3306/gongyeon?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    user: root
+    password: password!23
 ---
 server:
   port: 8000

@@ -56,7 +56,7 @@ public class GongyeonTestHelper {
             return studyField;
         }).collect(Collectors.toList());
 
-        member.updateMember(gender, age, address, daysOfTheWeek, studyFieldList);
+        member.updateMember(member.getName(), gender, age, address, daysOfTheWeek, studyFieldList);
         return member;
     }
 }

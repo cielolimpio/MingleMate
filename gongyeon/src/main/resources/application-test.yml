@@ -1,7 +1,7 @@
 spring:
   config.activate.on-profile: test
   datasource:
-    url: jdbc:mysql://localhost:3306/gongyeon-test?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/gongyeon_test?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: root
     password: password!23
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -13,11 +13,19 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
     properties:
       hibernate:
         show_sql: true
         format_sql: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    url: jdbc:mysql://localhost:3306/gongyeon_test?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    user: root
+    password: password!23
 ---
 server:
   port: 8000

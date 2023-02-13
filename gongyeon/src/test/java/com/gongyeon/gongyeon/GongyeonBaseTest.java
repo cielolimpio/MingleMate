@@ -11,4 +11,4 @@ import org.springframework.transaction.annotation.Transactional;
 @Disabled
 @AutoConfigureMockMvc
 @Transactional
-public class GongyeonBaseTest {}
+public class GongyeonBaseTest extends GongyeonTestHelper {}

@@ -6,16 +6,14 @@ import com.gongyeon.gongyeon.domain.RefreshToken;
 import com.gongyeon.gongyeon.domain.StudyField;
 import com.gongyeon.gongyeon.enums.HttpStatusEnum;
 import com.gongyeon.gongyeon.exception.GongYeonException;
-import com.gongyeon.gongyeon.models.MatchDto;
-import com.gongyeon.gongyeon.models.MemberProfile;
-import com.gongyeon.gongyeon.models.MyPageDto;
+import com.gongyeon.gongyeon.models.*;
 import com.gongyeon.gongyeon.payload.request.SearchProfilesRequest;
 import com.gongyeon.gongyeon.provider.AuthenticationProvider;
 import com.gongyeon.gongyeon.repository.MatchRepository;
 import com.gongyeon.gongyeon.repository.MemberRepository;
 import com.gongyeon.gongyeon.repository.RefreshTokenRepository;
+import com.gongyeon.gongyeon.repository.StudyFieldRepository;
 import com.gongyeon.gongyeon.security.JwtTokenProvider;
-import com.gongyeon.gongyeon.models.TokenInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -46,6 +44,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final StudyFieldRepository studyFieldRepository;
 
     private final MatchRepository matchRepository;
 
@@ -215,17 +214,24 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberProfile updateProfiles(MemberProfile updateProfile) {
+    public UpdateProfile updateProfiles(UpdateProfile updateProfile) {
         Long currentMemberId = AuthenticationProvider.getCurrentMemberId();
         Member member = memberRepository.findById(currentMemberId)
                 .orElseThrow(() -> new GongYeonException(HttpStatusEnum.NOT_FOUND, "Can't find User"));
+
+        List<StudyField> updateStudyFields = updateProfile.getStudyFields().stream()
+                .map(sf -> StudyField.createStudyField(member, sf.getStudyFieldName(), sf.getCategory()))
+                .collect(Collectors.toList());
+
+        studyFieldRepository.saveAll(updateStudyFields);
+
         member.updateMember(
                 updateProfile.getName(),
                 updateProfile.getGender(),
                 updateProfile.getAge(),
                 updateProfile.getAddress(),
                 updateProfile.getPossibleDaysOfTheWeek(),
-                updateProfile.getStudyFields()
+                updateStudyFields
         );
 
         return updateProfile;

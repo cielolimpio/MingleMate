@@ -1,13 +1,10 @@
 package com.gongyeon.gongyeon.controller;
 
-import com.gongyeon.gongyeon.models.MatchDto;
-import com.gongyeon.gongyeon.models.MemberProfile;
-import com.gongyeon.gongyeon.models.MyPageDto;
+import com.gongyeon.gongyeon.models.*;
 import com.gongyeon.gongyeon.payload.request.MemberLoginRequest;
 import com.gongyeon.gongyeon.domain.Member;
 import com.gongyeon.gongyeon.payload.request.SearchProfilesRequest;
 import com.gongyeon.gongyeon.payload.request.SignUpRequest;
-import com.gongyeon.gongyeon.models.TokenInfo;
 import com.gongyeon.gongyeon.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,7 +59,7 @@ public class MemberController {
     }
 
     @PostMapping("/update-profiles")
-    public MemberProfile updateProfiles(@RequestBody MemberProfile updateProfile){
+    public UpdateProfile updateProfiles(@RequestBody UpdateProfile updateProfile){
         return memberService.updateProfiles(updateProfile);
     }
 

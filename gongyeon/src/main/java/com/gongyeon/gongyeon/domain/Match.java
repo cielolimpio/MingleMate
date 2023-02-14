@@ -39,4 +39,8 @@ public class Match extends BaseEntity {
 
         return match;
     }
+
+    public void changeMatchStatus(MatchingStatusEnum matchingStatus){
+        this.matchingStatus = matchingStatus;
+    }
 }

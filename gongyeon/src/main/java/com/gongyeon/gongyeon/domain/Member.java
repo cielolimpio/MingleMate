@@ -46,7 +46,7 @@ public class Member extends BaseEntity implements UserDetails {
     private DaysOfTheWeek possibleDaysOfTheWeek;
 
     @OneToMany(mappedBy = "member")
-    private List<StudyField> studyFields = new ArrayList<>();
+    private List<MemberStudyField> memberStudyFields = new ArrayList<>();
 
     @Embedded
     private Tags tags;
@@ -77,7 +77,7 @@ public class Member extends BaseEntity implements UserDetails {
             int age,
             Address address,
             DaysOfTheWeek possibleDaysOfTheWeek,
-            List<StudyField> studyFields
+            List<MemberStudyField> memberStudyFields
     ) {
         this.name = name;
         this.gender = gender;
@@ -85,7 +85,7 @@ public class Member extends BaseEntity implements UserDetails {
         this.address = address;
         this.possibleDaysOfTheWeek = possibleDaysOfTheWeek;
         this.tags = new Tags();
-        this.studyFields.addAll(studyFields);
+        this.memberStudyFields.addAll(memberStudyFields);
     }
 
     public void changeRole(RoleEnum role){

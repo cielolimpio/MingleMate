@@ -1,6 +1,6 @@
 package com.gongyeon.gongyeon.models;
 
-import com.gongyeon.gongyeon.domain.StudyField;
+import com.gongyeon.gongyeon.domain.MemberStudyField;
 import com.gongyeon.gongyeon.domain.embeddedTypes.Address;
 import com.gongyeon.gongyeon.domain.embeddedTypes.DaysOfTheWeek;
 import com.gongyeon.gongyeon.domain.embeddedTypes.Tags;
@@ -20,7 +20,7 @@ public class MemberProfile {
     private int age;
     private Address address;
     private DaysOfTheWeek possibleDaysOfTheWeek;
-    private List<StudyField> studyFields;
+    private List<MemberStudyField> memberStudyFields;
     private Tags tags;
 
     @QueryProjection
@@ -31,7 +31,7 @@ public class MemberProfile {
             int age,
             Address address,
             DaysOfTheWeek possibleDaysOfTheWeek,
-            List<StudyField> studyFields,
+            List<MemberStudyField> memberStudyFields,
             Tags tags
     ) {
         this.id = id;
@@ -40,7 +40,7 @@ public class MemberProfile {
         this.age = age;
         this.address = address;
         this.possibleDaysOfTheWeek = possibleDaysOfTheWeek;
-        this.studyFields = studyFields;
+        this.memberStudyFields = memberStudyFields;
         this.tags = tags;
     }
 }

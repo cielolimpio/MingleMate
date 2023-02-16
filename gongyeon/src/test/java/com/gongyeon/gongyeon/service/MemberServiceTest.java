@@ -2,29 +2,36 @@ package com.gongyeon.gongyeon.service;
 
 import com.gongyeon.gongyeon.GongyeonBaseTest;
 import com.gongyeon.gongyeon.domain.Member;
+import com.gongyeon.gongyeon.domain.MemberStudyField;
 import com.gongyeon.gongyeon.domain.RefreshToken;
 import com.gongyeon.gongyeon.domain.StudyField;
 import com.gongyeon.gongyeon.domain.embeddedTypes.Address;
 import com.gongyeon.gongyeon.domain.embeddedTypes.DaysOfTheWeek;
-import com.gongyeon.gongyeon.domain.embeddedTypes.Tags;
-import com.gongyeon.gongyeon.enums.CategoryEnum;
 import com.gongyeon.gongyeon.enums.GenderEnum;
 import com.gongyeon.gongyeon.models.*;
+import com.gongyeon.gongyeon.models.payload.request.SearchProfilesRequest;
+import com.gongyeon.gongyeon.models.payload.request.UpdateProfileRequest;
+import com.gongyeon.gongyeon.models.payload.request.UpdateStudyFieldRequest;
+import com.gongyeon.gongyeon.models.payload.response.MyPageResponse;
+import com.gongyeon.gongyeon.provider.AuthenticationProvider;
 import com.gongyeon.gongyeon.repository.MemberRepository;
 import com.gongyeon.gongyeon.repository.RefreshTokenRepository;
 import com.gongyeon.gongyeon.security.JwtTokenProvider;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.util.Pair;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.annotation.Commit;
+import org.springframework.test.annotation.Rollback;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -166,6 +173,8 @@ public class MemberServiceTest extends GongyeonBaseTest {
     @Test
     public void 프로필_등록(){
         //given
+        List<StudyField> baseStudyFields = createBaseStudyFields();
+
         Member newMember = Member.createMember("test1", "test1@naver.com", "test1");
         memberService.signUp(newMember);
         TokenInfo tokenInfo = memberService.login("test1@naver.com", "test1");
@@ -173,13 +182,16 @@ public class MemberServiceTest extends GongyeonBaseTest {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         Member member = memberRepository.findByEmail(newMember.getEmail()).get();
 
-        UpdateProfile updateProfileMember = new UpdateProfile(
+        UpdateProfileRequest updateProfileMember = new UpdateProfileRequest(
                 member.getName(),
                 GenderEnum.MALE, 20,
                 new Address("부산", "사하구", "다대동"),
                 new DaysOfTheWeek(true, true, true, false, false, false, true),
-                List.of(new StudyFieldDto("프로그래밍", CategoryEnum.개발), new StudyFieldDto("영어", CategoryEnum.어학)),
-                null);
+                List.of(
+                        new UpdateStudyFieldRequest(baseStudyFields.get(0).getId(), baseStudyFields.get(0).getMainName()),
+                        new UpdateStudyFieldRequest(baseStudyFields.get(1).getId(), baseStudyFields.get(1).getMainName())
+                )
+        );
 
 
         //when
@@ -192,35 +204,36 @@ public class MemberServiceTest extends GongyeonBaseTest {
         assertThat(member.getGender()).isEqualTo(GenderEnum.MALE);
         assertThat(member.getPossibleDaysOfTheWeek().isSun()).isTrue();
         assertThat(member.getPossibleDaysOfTheWeek().isFri()).isFalse();
-        assertThat(member.getStudyFields().size()).isEqualTo(2);
+        assertThat(member.getMemberStudyFields().size()).isEqualTo(2);
     }
 
     @Test
     public void 프로필_수정(){
         //given
+        List<StudyField> baseStudyFields = createBaseStudyFields();
         Member newMember = Member.createMember("test1", "test1@naver.com", "test1");
         memberService.signUp(newMember);
         TokenInfo tokenInfo = memberService.login("test1@naver.com", "test1");
         Authentication authentication = jwtTokenProvider.getAuthentication(tokenInfo.getAccessToken());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        UpdateProfile profile = new UpdateProfile(
+        UpdateProfileRequest profile = new UpdateProfileRequest(
                 newMember.getName(),
                 GenderEnum.MALE,
                 20,
                 new Address("부산", "사하구", "다대동"),
                 new DaysOfTheWeek(true, true, true, false, false, false, true),
-                List.of(new StudyFieldDto("프로그래밍", CategoryEnum.개발), new StudyFieldDto("영어", CategoryEnum.어학)),
-                null);
+                List.of(new UpdateStudyFieldRequest(baseStudyFields.get(0).getId(), baseStudyFields.get(0).getMainName()),
+                        new UpdateStudyFieldRequest(baseStudyFields.get(1).getId(), baseStudyFields.get(1).getMainName()))
+        );
 
-        UpdateProfile updateProfile = new UpdateProfile(
+        UpdateProfileRequest updateProfile = new UpdateProfileRequest(
                 "새로운 이름",
                 GenderEnum.FEMALE,
                 30,
                 new Address("서울", "관악구", "봉천동"),
                 new DaysOfTheWeek(false, false, false, true, true, true, false),
-                List.of(new StudyFieldDto("수학", CategoryEnum.공대)),
-                null
+                List.of(new UpdateStudyFieldRequest(baseStudyFields.get(3).getId(), baseStudyFields.get(3).getMainName()))
         );
 
         //when
@@ -234,13 +247,14 @@ public class MemberServiceTest extends GongyeonBaseTest {
         assertThat(member.getAddress().getTown()).isEqualTo("관악구");
         assertThat(member.getPossibleDaysOfTheWeek().isMon()).isFalse();
         assertThat(member.getPossibleDaysOfTheWeek().isSat()).isTrue();
-        assertThat(member.getStudyFields().size()).isEqualTo(1);
+        assertThat(member.getMemberStudyFields().size()).isEqualTo(1);
     }
 
 
     @Test
     public void 마이페이지(){
         //given
+        List<StudyField> baseStudyFields = createBaseStudyFields();
         Member newMember = Member.createMember("test1", "test1@naver.com", "test1");
         memberService.signUp(newMember);
         TokenInfo tokenInfo = memberService.login("test1@naver.com", "test1");
@@ -249,17 +263,19 @@ public class MemberServiceTest extends GongyeonBaseTest {
         Member member = memberRepository.findByEmail(newMember.getEmail())
                 .orElseThrow();
 
-        UpdateProfile updateProfileMember = new UpdateProfile(
+        UpdateProfileRequest updateProfileMember = new UpdateProfileRequest(
                 member.getName(),
-                GenderEnum.MALE, 20,
+                GenderEnum.MALE,
+                20,
                 new Address("부산", "사하구", "다대동"),
                 new DaysOfTheWeek(true, true, true, false, false, false, true),
-                List.of(new StudyFieldDto("프로그래밍", CategoryEnum.개발), new StudyFieldDto("영어", CategoryEnum.어학)),
-                null);
+                List.of(new UpdateStudyFieldRequest(baseStudyFields.get(0).getId(), baseStudyFields.get(0).getMainName()),
+                        new UpdateStudyFieldRequest(baseStudyFields.get(1).getId(), baseStudyFields.get(1).getMainName()))
+        );
         memberService.updateProfiles(updateProfileMember);
 
         //when
-        MyPageDto myPageResult = memberService.myPage();
+        MyPageResponse myPageResult = memberService.myPage();
 
         //then
         assertThat(myPageResult.getName()).isEqualTo("test1");
@@ -270,6 +286,52 @@ public class MemberServiceTest extends GongyeonBaseTest {
         assertThat(myPageResult.getPossibleDaysOfTheWeek().isWed()).isTrue();
     }
 
+    @Test
+    public void searchProfiles() throws Exception {
+        //given
+        List<StudyField> baseStudyFields = createBaseStudyFields();
+        createBaseMembers(baseStudyFields);
+        Member newMember = Member.createMember("test1", "test1@naver.com", "test1");
+        memberService.signUp(newMember);
+        TokenInfo tokenInfo = memberService.login("test1@naver.com", "test1");
+        Authentication authentication = jwtTokenProvider.getAuthentication(tokenInfo.getAccessToken());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
+        UpdateProfileRequest updateProfileMember = new UpdateProfileRequest(
+                newMember.getName(),
+                GenderEnum.MALE,
+                25,
+                new Address("city1", "town1", "village1"),
+                new DaysOfTheWeek(true, true, true, false, false, false, true),
+                List.of(new UpdateStudyFieldRequest(baseStudyFields.get(0).getId(), baseStudyFields.get(0).getMainName()),
+                        new UpdateStudyFieldRequest(baseStudyFields.get(8).getId(), baseStudyFields.get(8).getMainName()))
+        );
+        memberService.updateProfiles(updateProfileMember);
+        Member member = AuthenticationProvider.getCurrentMember();
+        //when
+        List<Long> memberStudyFieldIds = member.getMemberStudyFields().stream().map(MemberStudyField::getId).collect(Collectors.toList());
+        Page<MemberProfile> memberProfiles = memberService.searchProfiles(
+                new SearchProfilesRequest(
+                        GenderEnum.FEMALE,
+                        Pair.of(23, 27),
+                        new Address("city1", "town1", null),
+                        new DaysOfTheWeek(true, true, true, false, false, false, true),
+                        memberStudyFieldIds
+                ),
+                Pageable.ofSize(10)
+        );
+
+        //then
+        memberProfiles.forEach(memberProfile -> {
+            Assertions.assertThat(memberProfile.getGender()).isEqualTo(GenderEnum.FEMALE);
+            Assertions.assertThat(memberProfile.getAge()).isGreaterThanOrEqualTo(23);
+            Assertions.assertThat(memberProfile.getAge()).isLessThanOrEqualTo(27);
+            Assertions.assertThat(memberProfile.getAddress().getCity()).isEqualTo("city1");
+            Assertions.assertThat(memberProfile.getAddress().getTown()).isEqualTo("town1");
+            int numOfMatchingDaysOfTheWeek = memberProfile.getPossibleDaysOfTheWeek()
+                    .countMatchingDaysOfTheWeek(member.getPossibleDaysOfTheWeek());
+            Assertions.assertThat(numOfMatchingDaysOfTheWeek).isPositive();
+        });
+    }
 
 }

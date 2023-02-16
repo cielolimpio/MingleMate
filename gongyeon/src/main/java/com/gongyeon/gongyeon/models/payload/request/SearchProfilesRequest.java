@@ -1,4 +1,4 @@
-package com.gongyeon.gongyeon.payload.request;
+package com.gongyeon.gongyeon.models.payload.request;
 
 import com.gongyeon.gongyeon.domain.embeddedTypes.Address;
 import com.gongyeon.gongyeon.domain.embeddedTypes.DaysOfTheWeek;
@@ -18,5 +18,5 @@ public class SearchProfilesRequest {
     private Address address;
     @NotNull
     private DaysOfTheWeek daysOfTheWeek;
-    private List<String> studyFields;
+    private List<Long> memberStudyFieldIds;
 }

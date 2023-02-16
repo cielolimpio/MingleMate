@@ -1,18 +1,14 @@
 package com.gongyeon.gongyeon.service;
 
-import com.gongyeon.gongyeon.domain.Match;
-import com.gongyeon.gongyeon.domain.Member;
-import com.gongyeon.gongyeon.domain.RefreshToken;
-import com.gongyeon.gongyeon.domain.StudyField;
+import com.gongyeon.gongyeon.domain.*;
 import com.gongyeon.gongyeon.enums.HttpStatusEnum;
 import com.gongyeon.gongyeon.exception.GongYeonException;
 import com.gongyeon.gongyeon.models.*;
-import com.gongyeon.gongyeon.payload.request.SearchProfilesRequest;
+import com.gongyeon.gongyeon.models.payload.request.SearchProfilesRequest;
+import com.gongyeon.gongyeon.models.payload.request.UpdateProfileRequest;
+import com.gongyeon.gongyeon.models.payload.response.MyPageResponse;
 import com.gongyeon.gongyeon.provider.AuthenticationProvider;
-import com.gongyeon.gongyeon.repository.MatchRepository;
-import com.gongyeon.gongyeon.repository.MemberRepository;
-import com.gongyeon.gongyeon.repository.RefreshTokenRepository;
-import com.gongyeon.gongyeon.repository.StudyFieldRepository;
+import com.gongyeon.gongyeon.repository.*;
 import com.gongyeon.gongyeon.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,7 +27,6 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -45,6 +40,7 @@ public class MemberService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final RefreshTokenRepository refreshTokenRepository;
     private final StudyFieldRepository studyFieldRepository;
+    private final MemberStudyFieldRepository memberStudyFieldRepository;
 
     private final MatchRepository matchRepository;
 
@@ -114,18 +110,59 @@ public class MemberService {
         return "로그아웃 성공";
     }
 
-    public Page<MemberProfile> searchProfiles(SearchProfilesRequest request, Pageable pageable) {
-        Long memberId = AuthenticationProvider.getCurrentMemberId();
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new GongYeonException(HttpStatusEnum.NOT_FOUND, "User Not Found"));
+    @Transactional
+    public UpdateProfileRequest updateProfiles(UpdateProfileRequest updateProfile) {
+        Long currentMemberId = AuthenticationProvider.getCurrentMemberId();
+        Member member = memberRepository.findById(currentMemberId)
+                .orElseThrow(() -> new GongYeonException(HttpStatusEnum.NOT_FOUND, "Can't find User"));
 
-        List<StudyField> studyFieldsForSearching = request.getStudyFields().stream()
-                .map(studyFieldName ->
-                        member.getStudyFields().stream()
-                                .filter(it -> it.getName().equals(studyFieldName))
-                                .findFirst()
-                                .orElseThrow(() -> new GongYeonException(HttpStatusEnum.NOT_FOUND, "User Doesn't Have Study Field " + studyFieldName))
-                ).collect(Collectors.toList());
+        List<MemberStudyField> memberStudyFields = updateProfile.getStudyFields().stream().map(sf -> {
+            StudyField studyField = studyFieldRepository.findById(sf.getStudyFieldId())
+                    .orElseThrow(() -> new GongYeonException(HttpStatusEnum.NOT_FOUND, "Study Field Not Found"));
+            return MemberStudyField.createMemberStudyField(member, studyField, sf.getName());
+        }).collect(Collectors.toList());
+
+        memberStudyFieldRepository.saveAll(memberStudyFields);
+
+        member.updateMember(
+                updateProfile.getName(),
+                updateProfile.getGender(),
+                updateProfile.getAge(),
+                updateProfile.getAddress(),
+                updateProfile.getPossibleDaysOfTheWeek(),
+                memberStudyFields
+        );
+
+        return updateProfile;
+    }
+
+    public MyPageResponse myPage() {
+        Long currentMemberId = AuthenticationProvider.getCurrentMemberId();
+        Member findMember = memberRepository.findById(currentMemberId)
+                .orElseThrow(() -> new GongYeonException(HttpStatusEnum.NOT_FOUND, "Can't Find User"));
+
+        List<StudyFieldDto> studyFieldDtos = findMember.getMemberStudyFields().stream().map(msf ->
+                new StudyFieldDto(msf.getStudyField().getCategory(), msf.getName())
+        ).collect(Collectors.toList());
+
+        return new MyPageResponse(
+                findMember.getName(),
+                findMember.getEmail(),
+                findMember.getGender(),
+                findMember.getAge(),
+                findMember.getAddress(),
+                findMember.getPossibleDaysOfTheWeek(),
+                studyFieldDtos,
+                findMember.getTags());
+    }
+
+    public Page<MemberProfile> searchProfiles(SearchProfilesRequest request, Pageable pageable) {
+        List<StudyFieldDto> studyFieldsForSearching = request.getMemberStudyFieldIds().stream().map(msfId -> {
+            MemberStudyField memberStudyField = memberStudyFieldRepository.findById(msfId)
+                    .orElseThrow(() -> new GongYeonException(HttpStatusEnum.NOT_FOUND, "Member Study Field Not Found"));
+            return new StudyFieldDto(memberStudyField);
+        }).collect(Collectors.toList());
+
         BigDecimal possibleMaxScoreInStudyField = BigDecimal.valueOf(
                 (long) studyFieldsForSearching.size() * (studyFieldsForSearching.size() - 1) / 2
         );
@@ -135,13 +172,13 @@ public class MemberService {
                     AtomicInteger studyFieldWeight = new AtomicInteger(studyFieldsForSearching.size());
                     BigDecimal studyFieldScore = studyFieldsForSearching.stream()
                             .map(studyFieldForSearching -> {
-                                boolean isStudyFieldNameSame = profile.getStudyFields().stream()
-                                        .anyMatch(it -> it.getName().equals(studyFieldForSearching.getName()));
-                                if (isStudyFieldNameSame) return BigDecimal.ONE;
-
-                                boolean isStudyFieldCategorySame = profile.getStudyFields().stream()
-                                        .anyMatch(it -> it.getCategory().equals(studyFieldForSearching.getCategory()));
-                                if (isStudyFieldCategorySame) return BigDecimal.valueOf(0.4);
+                                boolean isStudyFieldCategorySame = profile.getMemberStudyFields().stream().anyMatch(it ->
+                                        it.getStudyField().getCategory().equals(studyFieldForSearching.getCategory())
+                                );
+                                boolean isStudyFieldNameSame = profile.getMemberStudyFields().stream()
+                                        .anyMatch(it -> it.getName().equals(studyFieldForSearching.getStudyFieldName()));
+                                if (isStudyFieldCategorySame && isStudyFieldNameSame) return BigDecimal.ONE;
+                                else if (isStudyFieldCategorySame) return BigDecimal.valueOf(0.4);
                                 else return BigDecimal.ZERO;
                             })
                             .reduce((score, e) -> score.add(e.multiply(BigDecimal.valueOf(studyFieldWeight.getAndDecrement()))))
@@ -172,26 +209,10 @@ public class MemberService {
                 .collect(Collectors.toList());
 
         int start = (int) pageable.getOffset() * pageable.getPageSize();
-        int end = start + pageable.getPageSize();
+        int end = Math.min(start + pageable.getPageSize(), sortedMemberProfiles.size());
         List<MemberProfile> content = sortedMemberProfiles.subList(start, end);
 
         return PageableExecutionUtils.getPage(content, pageable, sortedMemberProfiles::size);
-    }
-
-    public MyPageDto myPage() {
-        Long currentMemberId = AuthenticationProvider.getCurrentMemberId();
-        Member findMember = memberRepository.findById(currentMemberId)
-                .orElseThrow(() -> new GongYeonException(HttpStatusEnum.NOT_FOUND, "Can't Find User"));
-
-        return new MyPageDto(
-                findMember.getName(),
-                findMember.getEmail(),
-                findMember.getGender(),
-                findMember.getAge(),
-                findMember.getAddress(),
-                findMember.getPossibleDaysOfTheWeek(),
-                findMember.getStudyFields(),
-                findMember.getTags());
     }
 
     public List<MatchDto> matchingHistory() {
@@ -211,29 +232,5 @@ public class MemberService {
                         m.getRegisteredDateTime()
                 ))
                 .collect(Collectors.toList());
-    }
-
-    @Transactional
-    public UpdateProfile updateProfiles(UpdateProfile updateProfile) {
-        Long currentMemberId = AuthenticationProvider.getCurrentMemberId();
-        Member member = memberRepository.findById(currentMemberId)
-                .orElseThrow(() -> new GongYeonException(HttpStatusEnum.NOT_FOUND, "Can't find User"));
-
-        List<StudyField> updateStudyFields = updateProfile.getStudyFields().stream()
-                .map(sf -> StudyField.createStudyField(member, sf.getStudyFieldName(), sf.getCategory()))
-                .collect(Collectors.toList());
-
-        studyFieldRepository.saveAll(updateStudyFields);
-
-        member.updateMember(
-                updateProfile.getName(),
-                updateProfile.getGender(),
-                updateProfile.getAge(),
-                updateProfile.getAddress(),
-                updateProfile.getPossibleDaysOfTheWeek(),
-                updateStudyFields
-        );
-
-        return updateProfile;
     }
 }

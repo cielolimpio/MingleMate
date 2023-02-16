@@ -18,22 +18,23 @@ public class StudyField extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
+    // if null, it means all of categories
+    // if 기타, we have to handle it in admin
+    @Column(length = 20, name = "main_name")
+    private String mainName;
 
-    @Column(nullable = false, length = 20)
-    private String name;
+    @Column(length = 20, name = "sub_name")
+    private String subName;
 
     @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
     private CategoryEnum category;
 
 
-    public static StudyField createStudyField(Member member, String name, CategoryEnum category) {
+    public static StudyField createStudyField(String mainName, String subName, CategoryEnum category) {
         StudyField studyField = new StudyField();
-        studyField.member = member;
-        studyField.name = name;
+        studyField.mainName = mainName;
+        studyField.subName = subName;
         studyField.category = category;
 
         return studyField;

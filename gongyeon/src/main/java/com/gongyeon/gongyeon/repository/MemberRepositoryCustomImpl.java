@@ -5,15 +5,17 @@ import com.gongyeon.gongyeon.domain.embeddedTypes.DaysOfTheWeek;
 import com.gongyeon.gongyeon.enums.GenderEnum;
 import com.gongyeon.gongyeon.models.MemberProfile;
 import com.gongyeon.gongyeon.models.QMemberProfile;
-import com.gongyeon.gongyeon.payload.request.SearchProfilesRequest;
+import com.gongyeon.gongyeon.models.payload.request.SearchProfilesRequest;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.gongyeon.gongyeon.domain.QMember.member;
+import static com.gongyeon.gongyeon.domain.QMemberStudyField.memberStudyField;
 import static com.gongyeon.gongyeon.domain.QStudyField.studyField;
 
 public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
@@ -27,18 +29,9 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
     @Override
     public List<MemberProfile> searchProfiles(SearchProfilesRequest request) {
         return queryFactory
-                .select(new QMemberProfile(
-                        member.id,
-                        member.name,
-                        member.gender,
-                        member.age,
-                        member.address,
-                        member.possibleDaysOfTheWeek,
-                        member.studyFields,
-                        member.tags
-                ))
-                .from(member)
-                .innerJoin(member.studyFields, studyField)
+                .selectFrom(member)
+                .innerJoin(member.memberStudyFields, memberStudyField)
+                .innerJoin(memberStudyField.studyField, studyField)
                 .where(
                         genderEq(request.getGender()),
                         ageGoe(request.getAgeRange().getFirst()),
@@ -49,7 +42,17 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 .offset(0)
                 .limit(300)
                 .orderBy(member.lastModifiedDateTime.desc())
-                .fetch();
+                .fetch()
+                .stream().map(resultRow -> new MemberProfile(
+                        resultRow.getId(),
+                        resultRow.getName(),
+                        resultRow.getGender(),
+                        resultRow.getAge(),
+                        resultRow.getAddress(),
+                        resultRow.getPossibleDaysOfTheWeek(),
+                        resultRow.getMemberStudyFields(),
+                        resultRow.getTags()
+                )).collect(Collectors.toList());
     }
 
     private BooleanExpression genderEq(GenderEnum gender) { return gender != null ? member.gender.eq(gender) : null; }

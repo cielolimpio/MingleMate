@@ -1,10 +1,12 @@
 package com.gongyeon.gongyeon.controller;
 
 import com.gongyeon.gongyeon.models.*;
-import com.gongyeon.gongyeon.payload.request.MemberLoginRequest;
+import com.gongyeon.gongyeon.models.payload.request.MemberLoginRequest;
 import com.gongyeon.gongyeon.domain.Member;
-import com.gongyeon.gongyeon.payload.request.SearchProfilesRequest;
-import com.gongyeon.gongyeon.payload.request.SignUpRequest;
+import com.gongyeon.gongyeon.models.payload.request.SearchProfilesRequest;
+import com.gongyeon.gongyeon.models.payload.request.SignUpRequest;
+import com.gongyeon.gongyeon.models.payload.request.UpdateProfileRequest;
+import com.gongyeon.gongyeon.models.payload.response.MyPageResponse;
 import com.gongyeon.gongyeon.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,23 +55,22 @@ public class MemberController {
         memberService.logout();
     }
 
+    @PostMapping("/update-profiles")
+    public UpdateProfileRequest updateProfiles(@RequestBody UpdateProfileRequest updateProfile){
+        return memberService.updateProfiles(updateProfile);
+    }
+
+    @GetMapping("/my-page")
+    public MyPageResponse myPage(){
+        return memberService.myPage();
+    }
+
     @PostMapping("/search-profiles")
     public Page<MemberProfile> searchProfiles(@Valid @RequestBody SearchProfilesRequest request, Pageable pageable) {
         return memberService.searchProfiles(request, pageable);
     }
 
-    @PostMapping("/update-profiles")
-    public UpdateProfile updateProfiles(@RequestBody UpdateProfile updateProfile){
-        return memberService.updateProfiles(updateProfile);
-    }
-
-
-    @GetMapping("/mypage")
-    public MyPageDto myPage(){
-        return memberService.myPage();
-    }
-
-    @GetMapping("/mypage/matching-history")
+    @GetMapping("/my-page/matching-history")
     public List<MatchDto> matchingHistory(){
         return memberService.matchingHistory();
     }

@@ -1,10 +1,9 @@
 package com.gongyeon.gongyeon.interceptor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gongyeon.gongyeon.payload.response.ResponseEntity;
+import com.gongyeon.gongyeon.models.payload.response.ResponseEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.util.ContentCachingResponseWrapper;

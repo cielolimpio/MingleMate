@@ -1,4 +1,4 @@
-package com.gongyeon.gongyeon.payload.response;
+package com.gongyeon.gongyeon.models.payload.response;
 
 import lombok.*;
 import org.springframework.http.HttpEntity;

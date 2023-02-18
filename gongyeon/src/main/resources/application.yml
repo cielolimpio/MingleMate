@@ -35,3 +35,6 @@ server:
 jwt:
   secret: 865ca9043e48e5652309c62c46c9fe59e93588c43511c769b5b0415e2839cede7c95ea7ef0df8f0cf7c909867e665f84dc5ee1a468a59651fbee16991fd18be3
 
+imp:
+  restApiKey: 6704822164751663
+  restApiSecretKey: wLkgfDVUuebAQW9IPJBUT2s6i7uKdPuSg6sUf5mp7hNYn8je4nwIK5XBfymXrTdhq5xkEPbeLhO3iOhl

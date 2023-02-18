@@ -16,6 +16,7 @@ configurations {
 
 repositories {
 	mavenCentral()
+	maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -50,6 +51,11 @@ dependencies {
 	// flyway
 	implementation 'org.flywaydb:flyway-core:8.4.1'
 	implementation 'org.flywaydb:flyway-mysql'
+
+	// i'm port
+	implementation 'com.github.iamport:iamport-rest-client-java:0.2.22'
+
+
 
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'

@@ -7,6 +7,13 @@ import com.gongyeon.gongyeon.domain.embeddedTypes.Address;
 import com.gongyeon.gongyeon.domain.embeddedTypes.DaysOfTheWeek;
 import com.gongyeon.gongyeon.enums.CategoryEnum;
 import com.gongyeon.gongyeon.enums.GenderEnum;
+import com.gongyeon.gongyeon.models.TokenInfo;
+import com.gongyeon.gongyeon.repository.MemberRepository;
+import com.gongyeon.gongyeon.security.JwtTokenProvider;
+import com.gongyeon.gongyeon.service.MemberService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -20,6 +27,16 @@ public class GongyeonTestHelper {
 
     @PersistenceContext
     EntityManager em;
+
+    @Autowired
+    MemberService memberService;
+
+    @Autowired
+    MemberRepository memberRepository;
+
+    @Autowired
+    JwtTokenProvider jwtTokenProvider;
+
 
     public void createBaseMembers(List<StudyField> baseStudyFields) {
         IntStream.rangeClosed(1, 100).forEach(i -> {
@@ -68,5 +85,20 @@ public class GongyeonTestHelper {
 
         member.updateMember(member.getName(), gender, age, address, daysOfTheWeek, memberStudyFieldList);
         return member;
+    }
+
+    public Member signUp(String username, String email, String password){
+        Member newMember = Member.createMember(username, email, password);
+        memberService.signUp(newMember);
+        return memberRepository.findByEmail(newMember.getEmail()).get();
+    }
+
+    public Member signUpAndLoginWithAuth(String username, String email, String password) {
+        Member newMember = Member.createMember(username, email, password);
+        memberService.signUp(newMember);
+        TokenInfo tokenInfo = memberService.login(newMember.getEmail(), newMember.getPassword());
+        Authentication authentication = jwtTokenProvider.getAuthentication(tokenInfo.getAccessToken());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        return memberRepository.findByEmail(newMember.getEmail()).get();
     }
 }

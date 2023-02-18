@@ -10,7 +10,9 @@ public enum MatchingStatusEnum {
     REQUEST("REQUEST"),
     REJECT("REJECT"),
     ACCEPT("ACCEPT"),
-    PAYMENT_COMPLETE("PAYMENT_COMPLETE")
+    PAYMENT_COMPLETE("PAYMENT_COMPLETE"),
+
+    PAYMENT_CANCEL("PAYMENT_CANCEL")
     ;
 
     @JsonValue

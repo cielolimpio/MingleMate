@@ -1,6 +1,7 @@
 package com.gongyeon.gongyeon.service;
 
 import com.gongyeon.gongyeon.GongyeonBaseTest;
+import com.gongyeon.gongyeon.GongyeonTestHelper;
 import com.gongyeon.gongyeon.domain.Match;
 import com.gongyeon.gongyeon.domain.Member;
 import com.gongyeon.gongyeon.enums.MatchingStatusEnum;
@@ -89,19 +90,19 @@ class MatchServiceTest extends GongyeonBaseTest {
         assertThat(failMatch.getRequesterName()).isEqualTo(requester.getName());
     }
 
-    private Member signUp(String username, String email, String password){
-        Member newMember = Member.createMember(username, email, password);
-        memberService.signUp(newMember);
-        return memberRepository.findByEmail(newMember.getEmail()).get();
-    }
-
-    private Member signUpAndLoginWithAuth(String username, String email, String password) {
-        Member newMember = Member.createMember(username, email, password);
-        memberService.signUp(newMember);
-        TokenInfo tokenInfo = memberService.login(newMember.getEmail(), newMember.getPassword());
-        Authentication authentication = jwtTokenProvider.getAuthentication(tokenInfo.getAccessToken());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        return memberRepository.findByEmail(newMember.getEmail()).get();
-    }
+//    private Member signUp(String username, String email, String password){
+//        Member newMember = Member.createMember(username, email, password);
+//        memberService.signUp(newMember);
+//        return memberRepository.findByEmail(newMember.getEmail()).get();
+//    }
+//
+//    private Member signUpAndLoginWithAuth(String username, String email, String password) {
+//        Member newMember = Member.createMember(username, email, password);
+//        memberService.signUp(newMember);
+//        TokenInfo tokenInfo = memberService.login(newMember.getEmail(), newMember.getPassword());
+//        Authentication authentication = jwtTokenProvider.getAuthentication(tokenInfo.getAccessToken());
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
+//        return memberRepository.findByEmail(newMember.getEmail()).get();
+//    }
 
 }

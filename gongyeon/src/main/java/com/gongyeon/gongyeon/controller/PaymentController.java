@@ -1,8 +1,6 @@
 package com.gongyeon.gongyeon.controller;
 
-import com.gongyeon.gongyeon.models.PaymentDto;
 import com.gongyeon.gongyeon.models.PaymentResponse;
-import com.gongyeon.gongyeon.repository.PaymentRepository;
 import com.gongyeon.gongyeon.service.PaymentService;
 import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.exception.IamportResponseException;

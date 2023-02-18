@@ -52,8 +52,8 @@ class PaymentServiceTest extends GongyeonBaseTest {
 
         //when
         PaymentResponse paymentResponse = paymentService.savePayment(
-                new PaymentDto(requester.getId(), 3000),
-                match.getId()
+                match.getId(),
+                3000
         );
 
         em.flush();
@@ -80,8 +80,8 @@ class PaymentServiceTest extends GongyeonBaseTest {
         matchService.matchComplete(match.getId());
 
         PaymentResponse savePayment = paymentService.savePayment(
-                new PaymentDto(requester.getId(), 3000),
-                match.getId()
+                match.getId(),
+                3000
         );
 
         //when

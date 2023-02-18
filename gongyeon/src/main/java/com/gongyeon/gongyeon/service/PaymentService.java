@@ -9,6 +9,7 @@ import com.gongyeon.gongyeon.exception.GongYeonException;
 import com.gongyeon.gongyeon.models.MatchDto;
 import com.gongyeon.gongyeon.models.PaymentDto;
 import com.gongyeon.gongyeon.models.PaymentResponse;
+import com.gongyeon.gongyeon.provider.AuthenticationProvider;
 import com.gongyeon.gongyeon.repository.MatchRepository;
 import com.gongyeon.gongyeon.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,16 +24,16 @@ public class PaymentService {
     private final MatchRepository matchRepository;
 
     @Transactional
-    public PaymentResponse savePayment(PaymentDto paymentDto, Long matchId){
+    public PaymentResponse savePayment(Long matchId, int amount){
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new GongYeonException(HttpStatusEnum.NOT_FOUND, "매칭 정보가 존재하지 않습니다."));
         Member requester = match.getRequester();
 
-        if(!requester.getId().equals(paymentDto.getMemberId())){
+        if(!requester.getId().equals(AuthenticationProvider.getCurrentMemberId())){
             throw new GongYeonException(HttpStatusEnum.BAD_REQUEST, "잘못된 결제 저장 요청입니다.");
         }
 
-        Payment payment = Payment.createPayment(match, requester, paymentDto.getAmount());
+        Payment payment = Payment.createPayment(match, requester, amount);
         paymentRepository.save(payment);
 
         match.changeMatchStatus(MatchingStatusEnum.PAYMENT_COMPLETE);
@@ -42,7 +43,7 @@ public class PaymentService {
                         match.getResponder().getName(),
                         match.getMatchingStatus(),
                         match.getLastModifiedDateTime()),
-                paymentDto.getAmount()
+                amount
         );
     }
 

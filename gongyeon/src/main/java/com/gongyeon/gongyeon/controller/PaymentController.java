@@ -44,8 +44,8 @@ public class PaymentController {
     @PostMapping("/{matchId}")
     public PaymentResponse doPayment(
             @PathVariable Long matchId,
-            @RequestBody PaymentDto paymentDto){
-        return paymentService.savePayment(paymentDto, matchId);
+            @RequestParam int amount){
+        return paymentService.savePayment(matchId, amount);
     }
 
     @PostMapping("/cancel/{paymentId}")

@@ -13,15 +13,15 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: validate
     properties:
       hibernate:
         show_sql: true
         format_sql: true
 
   flyway:
-    enabled: true
-    baseline-on-migrate: true
+    enabled: false
+    baseline-on-migrate: false
     url: jdbc:mysql://localhost:3306/mingle_mate?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     user: root
     password: password!23

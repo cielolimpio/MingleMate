@@ -8,40 +8,54 @@ CREATE TABLE IF NOT EXISTS members (
     city VARCHAR(20),
     town VARCHAR(20),
     village VARCHAR(20),
-    mon BOOL NOT NULL,
-    tue BOOL NOT NULL,
-    wed BOOL NOT NULL,
-    thu BOOL NOT NULL,
-    fri BOOL NOT NULL,
-    sat BOOL NOT NULL,
-    sun BOOL NOT NULL,
-    attendance INT NOT NULL,
-    kindness INT NOT NULL,
-    studying_hard INT NOT NULL,
     role VARCHAR(10) NOT NULL,
     registered_datetime DATETIME NOT NULL,
     last_modified_datetime DATETIME NOT NULL,
-    deleted_datetime DATETIME,
     PRIMARY KEY (id)
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS study_fields (
+CREATE TABLE IF NOT EXISTS profile_images (
     id BIGINT NOT NULL AUTO_INCREMENT,
     member_id BIGINT NOT NULL,
-    name VARCHAR(20) NOT NULL,
-    category VARCHAR(20) NOT NULL,
+    `index` INT NOT NULL,
+    filename VARCHAR(200) NOT NULL,
+    original_s3_path VARCHAR(200) NOT NULL,
+    thumbnail_s3_path VARCHAR(200) NOT NULL,
+    registered_datetime DATETIME NOT NULL,
+    last_modified_datetime DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT profile_images__member_id FOREIGN KEY (member_id) REFERENCES members(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS categories (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    parent_category VARCHAR(20) NOT NULL,
+    name VARCHAR(20),
+    registered_datetime DATETIME NOT NULL,
+    last_modified_datetime DATETIME NOT NULL,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS member_categories (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    member_id BIGINT NOT NULL,
+    category_id BIGINT NOT NULL,
+    description VARCHAR(300) NOT NULL,
+    period_option VARCHAR(20) NOT NULL,
     registered_datetime DATETIME NOT NULL,
     last_modified_datetime DATETIME NOT NULL,
     deleted_datetime DATETIME,
     PRIMARY KEY (id),
-    CONSTRAINT study_fields__member_id FOREIGN KEY (member_id) REFERENCES members(id)
+    CONSTRAINT member_categories__member_id FOREIGN KEY (member_id) REFERENCES members(id),
+    CONSTRAINT member_categories__category_id FOREIGN KEY (category_id) REFERENCES categories(id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS matches (
     id BIGINT NOT NULL AUTO_INCREMENT,
+    uuid VARCHAR(30) UNIQUE NOT NULL,
     requester_id BIGINT NOT NULL,
     responder_id BIGINT NOT NULL,
-    matching_status VARCHAR(20) NOT NULL,
+    status VARCHAR(20) NOT NULL,
     registered_datetime DATETIME NOT NULL,
     last_modified_datetime DATETIME NOT NULL,
     deleted_datetime DATETIME,
@@ -50,19 +64,25 @@ CREATE TABLE IF NOT EXISTS matches (
     CONSTRAINT matches__responder_id FOREIGN KEY (responder_id) REFERENCES members(id)
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS matching_reviews (
+CREATE TABLE IF NOT EXISTS match_histories (
     id BIGINT NOT NULL AUTO_INCREMENT,
     match_id BIGINT NOT NULL,
-    reviewer_id BIGINT NOT NULL,
-    target_member_id BIGINT NOT NULL,
-    attendance BOOL,
-    kindness BOOL,
-    studying_hard BOOL,
+    status VARCHAR(20) NOT NULL,
+    registered_datetime DATETIME NOT NULL,
+    last_modified_datetime DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT matching_reviews__match_id FOREIGN KEY (match_id) REFERENCES matches(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS payments (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    member_id BIGINT NOT NULL,
+    match_id BIGINT NOT NULL,
+    amount INT NOT NULL,
     registered_datetime DATETIME NOT NULL,
     last_modified_datetime DATETIME NOT NULL,
     deleted_datetime DATETIME,
     PRIMARY KEY (id),
-    CONSTRAINT matching_reviews__match_id FOREIGN KEY (match_id) REFERENCES matches(id),
-    CONSTRAINT matching_reviews__reviewer_id FOREIGN KEY (reviewer_id) REFERENCES members(id),
-    CONSTRAINT matching_reviews__target_member_id FOREIGN KEY (target_member_id) REFERENCES members(id)
+    CONSTRAINT payments__match_id FOREIGN KEY (match_id) REFERENCES matches(id),
+    CONSTRAINT payments__member_id FOREIGN KEY (member_id) REFERENCES members(id)
 ) ENGINE=InnoDB;

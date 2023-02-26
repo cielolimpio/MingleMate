@@ -1,0 +1,38 @@
+spring:
+  config.activate.on-profile: test
+  datasource:
+    url: jdbc:mysql://localhost:3306/mingle_mate_test?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: root
+    password: password!23
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 5
+  redis:
+    host: localhost
+    port: 6379
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: false
+    baseline-version: 0
+    url: jdbc:mysql://localhost:3306/mingle_mate_test?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    user: root
+    password: password!23
+---
+server:
+  port: 8000
+  servlet:
+    context-path: /api
+
+
+jwt:
+  secret: 865ca9043e48e5652309c62c46c9fe59e93588c43511c769b5b0415e2839cede7c95ea7ef0df8f0cf7c909867e665f84dc5ee1a468a59651fbee16991fd18be3
+

@@ -5,10 +5,13 @@ import com.minglemate.minglemate.enums.HttpStatusEnum;
 import com.minglemate.minglemate.exception.MingleMateException;
 import com.minglemate.minglemate.models.*;
 import com.minglemate.minglemate.models.payload.request.*;
+import com.minglemate.minglemate.models.payload.response.MemberProfileResponse;
 import com.minglemate.minglemate.models.payload.response.MyPageResponse;
+import com.minglemate.minglemate.models.payload.response.ProfileImageResponse;
 import com.minglemate.minglemate.provider.AuthenticationProvider;
 import com.minglemate.minglemate.repository.*;
 import com.minglemate.minglemate.security.JwtTokenProvider;
+import com.minglemate.minglemate.utils.S3Utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +45,7 @@ public class MemberService {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
+    private final S3Utils s3Utils;
 
     @Transactional
     public TokenInfo signUp(Member member) {
@@ -170,8 +174,11 @@ public class MemberService {
         Member findMember = memberRepository.findById(currentMemberId)
                 .orElseThrow(() -> new MingleMateException(HttpStatusEnum.NOT_FOUND, "Can't Find User"));
 
-        List<ProfileImageDto> profileImages = findMember.getProfileImages().stream()
-                .map(ProfileImageDto::new).collect(Collectors.toList());
+        List<ProfileImageResponse> profileImages = findMember.getProfileImages().stream()
+                .map(pi -> new ProfileImageResponse(
+                        pi.getIndex(),
+                        s3Utils.getImageUri(pi.getThumbnailS3Path())
+                )).sorted(Comparator.comparing(ProfileImageResponse::getIndex)).collect(Collectors.toList());
 
         List<CategoryDto> categories = findMember.getMemberCategories().stream()
                 .map(CategoryDto::new).collect(Collectors.toList());
@@ -187,7 +194,7 @@ public class MemberService {
         );
     }
 
-    public Page<MemberProfile> searchProfiles(SearchProfilesRequest request, Pageable pageable) {
+    public Page<MemberProfileResponse> searchProfiles(SearchProfilesRequest request, Pageable pageable) {
         Category category = categoryRepository.findById(request.getCategoryId()).orElseThrow(() ->
                 new MingleMateException(HttpStatusEnum.NOT_FOUND, "Category Not Found")
         );
@@ -200,7 +207,20 @@ public class MemberService {
                 request.getPeriodOption()
         );
 
-        return memberRepository.searchProfiles(searchProfilesDto, pageable);
+        Page<MemberProfile> memberProfiles = memberRepository.searchProfiles(searchProfilesDto, pageable);
+
+        return memberProfiles.map(mp -> new MemberProfileResponse(
+                mp.getId(),
+                mp.getName(),
+                mp.getGender(),
+                mp.getAge(),
+                mp.getAddress(),
+                mp.getProfileImages().stream().map(pi -> new ProfileImageResponse(
+                        pi.getIndex(),
+                        s3Utils.getImageUri(pi.getThumbnailS3Path())
+                )).sorted(Comparator.comparing(ProfileImageResponse::getIndex)).collect(Collectors.toList()),
+                mp.getCategories()
+        ));
     }
 
     public List<MatchDto> matchHistory() {

@@ -3,6 +3,7 @@ package com.minglemate.minglemate.controller;
 import com.minglemate.minglemate.models.*;
 import com.minglemate.minglemate.models.payload.request.*;
 import com.minglemate.minglemate.domain.Member;
+import com.minglemate.minglemate.models.payload.response.MemberProfileResponse;
 import com.minglemate.minglemate.models.payload.response.MyPageResponse;
 import com.minglemate.minglemate.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -68,7 +69,7 @@ public class MemberController {
     }
 
     @PostMapping("/search-profiles")
-    public Page<MemberProfile> searchProfiles(@Valid @RequestBody SearchProfilesRequest request, Pageable pageable) {
+    public Page<MemberProfileResponse> searchProfiles(@Valid @RequestBody SearchProfilesRequest request, Pageable pageable) {
         return memberService.searchProfiles(request, pageable);
     }
 

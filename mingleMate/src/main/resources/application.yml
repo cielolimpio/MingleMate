@@ -31,6 +31,11 @@ server:
   servlet:
     context-path: /api
 
+aws:
+  access-key: AKIAULZZVHAZ2IAJTFBU
+  secret-key: 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
+  s3:
+    Bucket: minglemate
 
 jwt:
   secret: 865ca9043e48e5652309c62c46c9fe59e93588c43511c769b5b0415e2839cede7c95ea7ef0df8f0cf7c909867e665f84dc5ee1a468a59651fbee16991fd18be3
